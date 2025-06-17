@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+		<PropertyGroup>
+				<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+				<ImplicitUsings>disable</ImplicitUsings>
+				<Nullable>disable</Nullable>
+				<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+				<OutputType>Library</OutputType>
+		</PropertyGroup>
+
+		<PropertyGroup>
+				<Authors>Chizl</Authors>
+				<Description>
+						Used as a base library for generic extentions and methods, usese mostly for other Chizl libraries.
+				</Description>
+				<PackageId>Chizl</PackageId>
+				<Company>Chizl.com</Company>
+				<Copyright>© 2025 chizl.com</Copyright>
+				<PackageTags>base-library,netstandard2.0,netstandard2.1</PackageTags>
+				<FileVersion>5.06.10.0521</FileVersion>
+				<Version>5.06.10.0</Version>
+				<AssemblyVersion>5.06.0.0</AssemblyVersion>
+				<!--<ApplicationIcon>Chizl.Base.ico</ApplicationIcon>-->
+				<!--<PackageIcon>Chizl.Base.png</PackageIcon>-->
+				<!--<PackageReadmeFile>README.md</PackageReadmeFile>-->
+				<!--<PackageLicenseFile>LICENSE.md</PackageLicenseFile>-->
+		</PropertyGroup>
+
+		<ItemGroup>
+		  <Compile Remove="Demo\**" />
+		  <EmbeddedResource Remove="Demo\**" />
+		  <None Remove="Demo\**" />
+		</ItemGroup>
+
+</Project>
