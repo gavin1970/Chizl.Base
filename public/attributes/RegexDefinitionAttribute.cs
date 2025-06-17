@@ -7,11 +7,13 @@ namespace Chizl
     {
         public string ValidationPattern { get; }
         public string SanitizationPattern { get; }
+        public string Examples { get; }
 
-        public RegexDefinitionAttribute(string validationPattern, string sanitizationPattern)
+        public RegexDefinitionAttribute(string validationPattern, string sanitizationPattern, string examples)
         {
             ValidationPattern = validationPattern;
             SanitizationPattern = sanitizationPattern;
+            Examples = examples;
         }
     }
 }

@@ -2,7 +2,6 @@
 using System;
 using System.Drawing;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Demo
 {
@@ -16,8 +15,9 @@ namespace Demo
         static readonly string _function = Color.FromArgb(255, 255, 0).FGAscii();
         static readonly string _background = Color.FromArgb(48, 48, 48).BGAscii();
         static readonly string _null = $"{_fail}null{_reset}";
-        static readonly List<Type> _typeList = new List<Type>() { typeof(int), typeof(string), typeof(DateTime), 
+        static readonly List<Type> _typeList = new List<Type>() { typeof(int), typeof(string), typeof(DateTime),
                                                                   typeof(bool), typeof(RegexPatterns), typeof(Color) };
+        static readonly int _len = $"{_success}{_reset}".Length;
 
 
         static void Main(string[] args)
@@ -74,10 +74,7 @@ namespace Demo
             foreach (var enumValue in Enum.GetValues(typeof(RegexPatterns)))
             {
                 var eNum = (RegexPatterns)enumValue;
-                Console.WriteLine($"------======[ {eNum.Name()} ]======------");
-                Console.WriteLine($"Match Pattern   : {eNum.GetPattern(RegexPatternType.Match, false)}");
-                Console.WriteLine($"Sanitize Pattern: {eNum.GetPattern(RegexPatternType.Sanitize, false)}");
-                Console.WriteLine("---------------------------------------------");
+                WriteHeader(eNum);
 
                 var i = 1;
                 foreach (var str in testStrings)
@@ -119,6 +116,15 @@ namespace Demo
                 fgClr = match ? _success : _fail;
                 Console.WriteLine($"{i}: IsMatch(\"{newStr2}\") -> {fgClr}{match}{_reset}");
             }
+        }
+        static void WriteHeader(RegexPatterns eNum)
+        {
+            var name = $"------======[ {_success}{eNum.Name()}{_reset} ]======------";
+            Console.WriteLine(name);
+            Console.WriteLine($"Match Pattern   : {eNum.GetInfo(RegexPatternType.Match, false)}");
+            Console.WriteLine($"Sanitize Pattern: {eNum.GetInfo(RegexPatternType.Sanitize, false)}");
+            Console.WriteLine($"Example(s)      : {eNum.GetInfo(RegexPatternType.Examples, false)}");
+            Console.WriteLine(new string('-', name.Length - _len));
         }
         static void Finish()
         {

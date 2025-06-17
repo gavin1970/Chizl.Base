@@ -2,28 +2,29 @@
 {
     public enum RegexPatterns
     {
-        [RegexDefinition(@"^[a-zA-Z]+$", "[^a-zA-Z]")]
+        [RegexDefinition(@"^[a-zA-Z]+$", "[^a-zA-Z]", "SuperCaliFragiListicExpiAliDocious")]
         Alpha,
-        [RegexDefinition(@"^[a-zA-Z\s]+$", "[^a-zA-Z ]")]
+        [RegexDefinition(@"^[a-zA-Z\s]+$", "[^a-zA-Z ]", "20TwentyFive")]
         AlphaWithSpaces,
-        [RegexDefinition(@"^[0-9]+$", "[^0-9]")]
+        [RegexDefinition(@"^[0-9]+$", "[^0-9]", "65535")]
         NumericUnsigned,
-        [RegexDefinition(@"^-?(?!-)[0-9]+$", "[^-0-9]")]
+        [RegexDefinition(@"^-?(?!-)[0-9]+$", "[^-0-9]", "-32768, 32767")]
         NumericSigned,
-        [RegexDefinition(@"^\d{3}-\d{4}$", "[^0-9-]")]
+        [RegexDefinition(@"^\d{3}-\d{4}$", "[^0-9-]", "555-1212")]
         PhoneUS07,
-        [RegexDefinition(@"^(\(\d{3}\)|\d{3}-)(\d{3}-\d{4})$", @"[^\(\)0-9-]")]
+        [RegexDefinition(@"^(\(\d{3}\)[\s]?|\d{3}-)(\d{3}-\d{4})$", @"[^\(\)0-9-]", "(800) 555-1212, (800)555-1212, 800-555-1212")]
         PhoneUS10,
-        [RegexDefinition(@"^(\+1\(\d{3}\)[\s]?|\+1-\d{3}-|1-\d{3}-)(\d{3}-\d{4})$", @"[^\+\(\)0-9-]")]
+        [RegexDefinition(@"^(\+1[\s]?\(\d{3}\)[\s]?|\+1-\d{3}-|1-\d{3}-)(\d{3}-\d{4})$", @"[^\+\(\)0-9-]", "1-800-555-1212, +1 (800) 555-1212, +1(800)555-1212")]
         PhoneUS11,
-        [RegexDefinition(@"^(?!666|000|9\d{2})\d{3}-(?!00)\d{2}-(?!0000)\d{4}$", "[^0-9-]")]
+        [RegexDefinition(@"^(?!666|000|9\d{2})\d{3}-(?!00)\d{2}-(?!0000)\d{4}$", "[^0-9-]", "111-22-3333")]
         Ssn
     }
 
     public enum RegexPatternType
     {
         Match,
-        Sanitize
+        Sanitize,
+        Examples
     }
 
     public enum RegexPatterns2

@@ -46,17 +46,28 @@ namespace Chizl
         /// <param name="regPatType">Match or Sanitize</param>
         /// <param name="escape">Auto adds escaps used with Regex.  Set to false for display only.</param>
         /// <returns></returns>
-        public static string GetPattern(this RegexPatterns @this, RegexPatternType regPatType, bool escape = true)
+        public static string GetInfo(this RegexPatterns @this, RegexPatternType regPatType, bool escape = false)
         {
-            var validation = regPatType.Equals(RegexPatternType.Match) ? 
-                                            RegexHelper.GetAttribute(@this).ValidationPattern : 
-                                            RegexHelper.GetAttribute(@this).SanitizationPattern;
+            var validation = "";
+            switch (regPatType)
+            {
+                case RegexPatternType.Match:
+                    validation = RegexHelper.GetAttribute(@this).ValidationPattern;
+                    break;
+                case RegexPatternType.Sanitize:
+                    validation = RegexHelper.GetAttribute(@this).SanitizationPattern;
+                    break;
+                case RegexPatternType.Examples:
+                default:
+                    validation = RegexHelper.GetAttribute(@this).Examples;
+                    escape = false; //force, we don't want to escape examples.
+                    break;
+            }
 
             if (escape)
                 validation = Regex.Escape(validation);
 
             return validation;
         }
-
     }
 }
