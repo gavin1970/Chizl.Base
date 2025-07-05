@@ -7,8 +7,8 @@ namespace Chizl
         /// <summary>
         /// Returns the 'string' name of the Enums value being used.<br/>
         /// <code>
-        /// Example:<br/>
-        ///     var e = MyEnum.Property<br/>
+        /// Example:
+        ///     var e = MyEnum.Property
         ///     Console.WriteLine($"Enum property name: {e.Name()}");
         /// </code>
         /// </summary>
@@ -17,8 +17,8 @@ namespace Chizl
         /// <summary>
 		/// Returns the 'int' value of the Enums value being used.<br/>
         /// <code>
-        /// Example:<br/>
-        ///     var e = MyEnum.Property<br/>
+        /// Example:
+        ///     var e = MyEnum.Property
         ///     Console.WriteLine($"Enum property value: {e.Value()}");
         /// </code>
         /// </summary>

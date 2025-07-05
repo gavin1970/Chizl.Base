@@ -1,10 +1,33 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Chizl.Base.Internal.utils;
 
 namespace Chizl
 {
     public static class ChizlExtensions
     {
+        #region Private Arrays
+        private static readonly HashSet<Type> _validBoundaryTypes = new HashSet<Type>
+        {
+            typeof(byte),
+            typeof(short),     // Int16
+            typeof(int),       // Int32
+            typeof(long),      // Int64
+            typeof(float),     // Single
+            typeof(double),    // Double
+            typeof(decimal)    // Decimal
+        };
+
+        private static readonly HashSet<Type> _decimalTypes = new HashSet<Type>
+        {
+            typeof(float),     // Single
+            typeof(double),    // Double
+            typeof(decimal)    // Decimal
+        };
+        #endregion
+
+        #region Public Methods
         /// <summary>
         /// Gets a substring from this instance. The substring starts at a specified character position and has a specified length.<br/>
         /// This method uses modern C# range operators (`..`) on supported frameworks (.NET Standard 2.1+, .NET 6+) 
@@ -46,5 +69,58 @@ namespace Chizl
         /// <param name="t"></param>
         /// <returns>Default value based on Type</returns>
         public static object GetDefaultValue(this Type t) => Common.GetDefault(t);
+        #endregion
+
+        /// <summary>
+        /// Responds with numeric value passed in after forcing value to be within range given from Min to Max.<br/>
+        /// If less than Min, Min will be the set value.<br/>
+        /// If more than Max, Max will be the set value.
+        /// </summary>
+        /// <param name="min">Minimum value allowed</param>
+        /// <param name="max">Maximum value allowed</param>
+        /// <param name="decCount">(Range (0-4): Rounds to specific decimal.<br/>
+        /// If the decCount value isn't passed in, is less than 0, or more than 4: Default: 0)</param>
+        /// <returns>value forced within range.</returns>
+        public static T SetBoundary<T>(this T value, T min, T max, byte decCount = 0) where T : IComparable<T>
+        {
+            if (!IsSupportedNumeric<T>())
+                throw new NotSupportedException($"{typeof(T).Name} is not a supported numeric type.");
+
+            //if this return type doesn't have decimal values, and decCount is greater than 0, set to 0;
+            if (decCount > 0 && _decimalTypes.Where(w => w.Name.Equals(typeof(T).Name)).Count().Equals(0))
+                decCount = 0;
+
+            //validate decimal count based on response type.
+            var dec = decCount.ClampTo<byte>(0, 4);
+            //set range value
+            var retVal = (value.CompareTo(min) < 0) ? min : (value.CompareTo(max) > 0) ? max : value;
+
+            //convert to double for rounding, even if Int.  If Int, dec would of been forced to 0.
+            //It will be removed later, but required for Math.Round() to be a decimal type value.
+            //this allows for function to be generic across all _validBoundaryTypes
+            var conv = (double)Convert.ChangeType(retVal, typeof(double));
+
+            //validate min and max and round if necessary.
+            return (T)Convert.ChangeType(Math.Round(conv, dec), typeof(T));
+        }
+        /// <summary>
+        /// Since netstandard2.0 doesn't have Math.Clamp, this will do in.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        public static T ClampTo<T>(this T value, T min, T max)
+            where T : IComparable<T>
+        {
+            if (value.CompareTo(min) < 0) return min;
+            if (value.CompareTo(max) > 0) return max;
+            return value;
+        }
+
+        #region Private Helper Methods
+        private static bool IsSupportedNumeric<T>() => _validBoundaryTypes.Contains(typeof(T));
+        #endregion
     }
 }

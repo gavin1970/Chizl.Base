@@ -59,6 +59,20 @@ namespace Demo
                 Console.WriteLine($"alphabet.SubstringEx({i}, {size}) = {test}");
             }
 
+            Console.WriteLine($"{(new string('-', 30))}\n");
+
+            double dbl = 100.51556;
+            Console.WriteLine($"Setting value: {dbl}");
+            dbl = dbl.SetBoundary(1.0, 100.0, 6);
+            Console.WriteLine($"New Value: {dbl} - dbl.SetBoundary(1.0, 100.0, 6); - this is because max is 100.0.");
+            dbl = 88.51556;
+            Console.WriteLine($"Setting value: {dbl}");
+            dbl = dbl.SetBoundary(1.0, 100.0, 6);
+            Console.WriteLine($"Round down: {dbl} - dbl.SetBoundary(1.0, 100.0, 6); - this is because rounding internally is only 0-4, can't be 6.");
+            dbl = dbl.ClampTo(90.0, 100.0);
+            Console.WriteLine($"Round up: {dbl} - dbl.ClampTo(90.0, 100.0); - this is because min value is 90.0.\n" +
+                              $"This ClampTo() extension works in netstandard2.0-2.1, .net4.6-net9.0");
+
             Finish();
         }
         static void ShowRegexPatterns()
@@ -67,8 +81,9 @@ namespace Demo
             {
                 "-Alpha_!1234 5Test.67", "-Alpha_!1234 5Test678.90",
                 "~Alpha_!123-4 5Test.67", "~Alpha_!123-4 5Test6-78.90",
-                "~Alpha_!(123)4 5Test6-78.90", "~+1 Alpha_!(123) 45Test6-7.890", 
-                "~Alpha_!123-4 5-Test67.89", "~Alpha1-_!123-d45Test6-7.890"
+                "~Alpha_!(123)4 5Test6-78.90", "~+1 Alpha_!(123) 45Test6-7.890",
+                "~Alpha_!123-4 5-Test67.89", "~Alpha1-_!123-d45Test6-7.890",
+                "A#h12C4D6", "#h12C#4D6", "#12CZ4D6",
             };
 
             foreach (var enumValue in Enum.GetValues(typeof(RegexPatterns)))
