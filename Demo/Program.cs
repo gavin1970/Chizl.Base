@@ -19,7 +19,6 @@ namespace Demo
                                                                   typeof(bool), typeof(RegexPatterns), typeof(Color) };
         static readonly int _len = $"{_success}{_reset}".Length;
 
-
         static void Main(string[] args)
         {
             ShowDefaults();
@@ -77,7 +76,7 @@ namespace Demo
         }
         static void ShowRegexPatterns()
         {
-            List<string> testStrings = new List<string>() 
+            List<string> exList = new List<string>() 
             {
                 "-Alpha_!1234 5Test.67", "-Alpha_!1234 5Test678.90",
                 "~Alpha_!123-4 5Test.67", "~Alpha_!123-4 5Test6-78.90",
@@ -86,15 +85,29 @@ namespace Demo
                 "A#h12C4D6", "#h12C#4D6", "#12CZ4D6",
             };
 
-            foreach (var enumValue in Enum.GetValues(typeof(RegexPatterns)))
-            {
-                var eNum = (RegexPatterns)enumValue;
-                WriteHeader(eNum);
+            Console.WriteLine($"Example of usage:\n" +
+                             $"bool isHex = RegexPatterns.Hex.IsMatch(\"#FF00FF\");\n" +
+                             $"Response: {RegexPatterns.Hex.IsMatch("#FF00FF")}\n\n" +
+                             $"bool isHex = RegexPatterns.Hex.IsMatch(\"#ZFF00FF\");\n" +
+                             $"Response: {RegexPatterns.Hex.IsMatch("#ZFF00FF")}\n\n" +
+                             $"string hex = RegexPatterns.Hex.Sanitize(\"#ZFF00FF\")\n" +
+                             $"Response: {RegexPatterns.Hex.Sanitize("#ZFF00FF")}\n\n" +
+                             $"string hex = RegexPatterns.Hex.Sanitize(\"#ZFF#00FF\");\n" +
+                             $"Response: {RegexPatterns.Hex.Sanitize("#ZFF#00FF")}");
 
-                var i = 1;
-                foreach (var str in testStrings)
+            Finish();
+
+            //loop through Enum RegexPatterns
+            foreach (RegexPatterns enumPat in Enum.GetValues(typeof(RegexPatterns)))
+            {
+                //display header
+                WriteHeader(enumPat);
+
+                //loop through all example strings and run it against each pattern.
+                for (int i = 0; i < exList.Count; i++)
                 {
-                    DisplayMatch(i++, eNum, str);
+                    //display each
+                    DisplayMatch((i + 1), enumPat, exList[i]);
                     Console.WriteLine();
                 }
 
@@ -108,6 +121,7 @@ namespace Demo
             //set color based on match
             var fgClr = match ? _success : _fail;
 
+            //run match on original data
             Console.WriteLine($"{i}: IsMatch(\"{str}\") -> {fgClr}{match}{_reset}");
 
             //option 1, default replace with is "".
@@ -138,6 +152,8 @@ namespace Demo
             Console.WriteLine(name);
             Console.WriteLine($"Match Pattern   : {eNum.GetInfo(RegexPatternType.Match, false)}");
             Console.WriteLine($"Sanitize Pattern: {eNum.GetInfo(RegexPatternType.Sanitize, false)}");
+            Console.WriteLine($"Strategy        : {eNum.GetInfo(RegexPatternType.SanitizeStrategy, false)}");
+            Console.WriteLine($"Custom Method   : {eNum.GetInfo(RegexPatternType.CustomMethodName, false)}");
             Console.WriteLine($"Example(s)      : {eNum.GetInfo(RegexPatternType.Examples, false)}");
             Console.WriteLine(new string('-', name.Length - _len));
         }

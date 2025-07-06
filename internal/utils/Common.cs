@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
 
-namespace Chizl.Base.@Internal.utils
+namespace Chizl.Base.Internal.utils
 {
     internal class Common
     {
