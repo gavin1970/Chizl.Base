@@ -17,7 +17,7 @@
 				<Company>Chizl.com</Company>
 				<Copyright>© 2025 chizl.com</Copyright>
 				<PackageTags>base-library,netstandard2.0,netstandard2.1</PackageTags>
-				<FileVersion>5.07.06.0846</FileVersion>
+				<FileVersion>5.07.06.1735</FileVersion>
 				<Version>5.07.06.0</Version>
 				<AssemblyVersion>5.07.0.0</AssemblyVersion>
 		</PropertyGroup>

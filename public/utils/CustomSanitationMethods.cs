@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace Chizl
 {
@@ -10,23 +9,74 @@ namespace Chizl
         /// </summary>
         /// <param name="input">input string to clean</param>
         /// <param name="pattern">regex pattern, required for possible future custom methods, that require it.</param>
+        /// <param name="replaceWith">regex replacement char.</param>
         /// <returns>cleaned string</returns>
         public static string SanitizeHexCodeGeneric(string input, string pattern, string replaceWith)
+            => CommonParts(input, pattern, replaceWith, "#", null);
+
+        /// <summary>
+        /// Custom sanitizer method for Hex
+        /// </summary>
+        /// <param name="input">input string to clean</param>
+        /// <param name="pattern">regex pattern, required for possible future custom methods, that require it.</param>
+        /// <param name="replaceWith">regex replacement char.</param>
+        /// <returns>cleaned string</returns>
+        public static string SanitizeDecimalGeneric(string input, string pattern, string replaceWith) 
+            => CommonParts(input, pattern, replaceWith, "-", (new char[1] { '.' }));
+
+        /// <summary>
+        /// Custom sanitizer method for Hex
+        /// </summary>
+        /// <param name="input">input string to clean</param>
+        /// <param name="pattern">regex pattern, required for possible future custom methods, that require it.</param>
+        /// <param name="replaceWith">regex replacement char.</param>
+        /// <returns>cleaned string</returns>
+        public static string SanitizeMoneyGeneric(string input, string pattern, string replaceWith)
+        {
+            var sanitized = CommonParts(input, pattern, replaceWith, "$", (new char[2] { '.', ' ' }));
+
+            //More customization. Spaces are allowed, but only 1 and after the $.
+            //duplicates have already been removed, but if there is a space and it's not after the $, remove it.
+            if (sanitized.IndexOf(" ") > -1 && sanitized.IndexOf(" ") != 1)
+                sanitized = sanitized.Replace(" ", "");
+
+            return sanitized;
+        }
+
+        /// <summary>
+        /// Duplication across all Sanitizers, this merges them together is the most common parts of them all.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="pattern"></param>
+        /// <param name="replaceWith"></param>
+        /// <param name="allowedStarter"></param>
+        /// <param name="removeDups"></param>
+        /// <returns></returns>
+        private static string CommonParts(string input, string pattern, string replaceWith, string allowedStarter, char[] removeDups)
         {
             if (replaceWith == null)
                 replaceWith = "";
 
-            Debug.WriteLine($"INPUT: {input}, PATTERN: {pattern}, REPLACEMENT: {replaceWith}");
-            //@"[^#a-fA-F0-9]"
-            // First, remove invalid characters based on pattern. (not hex digits or '#')
+            // First, remove invalid characters based on pattern. 
             string sanitized = Regex.Replace(input, pattern, replaceWith);
-            Debug.WriteLine($"sanitized: {sanitized}");
 
-            // Then, remove '#' if it's not the first character
-            if (sanitized.StartsWith("#"))
-                return "#" + sanitized.Substring(1).Replace("#", "");
+            if (removeDups != null && removeDups.Length > 0)
+            {
+                foreach (char ch in removeDups)
+                {
+                    //build array to make sure there isn't more than 1 decimal
+                    var sans = sanitized.Split(new char[] { ch }, System.StringSplitOptions.RemoveEmptyEntries);
+                    //if a special char exists, put it back together, removing any duplicates.
+                    if (sans.Length > 1)
+                        sanitized = $"{sans[0]}{ch}{sans[1]}";
+                }
+            }
+
+            // Then, remove special char if it's not the first character
+            if (sanitized.StartsWith(allowedStarter))
+                return allowedStarter + sanitized.Substring(1).Replace(allowedStarter, replaceWith);
             else
-                return sanitized.Replace("#", "");
+                return sanitized.Replace(allowedStarter, replaceWith);
         }
     }
 }

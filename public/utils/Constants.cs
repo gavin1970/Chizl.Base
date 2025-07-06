@@ -6,7 +6,45 @@
         Alpha,
         [RegexDefinition(@"^[a-zA-Z\s]+$", "[^a-zA-Z ]", "20TwentyFive")]
         AlphaWithSpaces,
-        [RegexDefinition(@"^[0-9]+$", "[^0-9]", "65535")]
+        /// <summary>
+        /// <code>
+        /// Verifies if a string is numerica, which includes negatives and deciamals.
+        /// Pattern: @"^(\$|\$\s)?\-?\d{1,10}\.\d{2,4}$"
+        /// Allows: 1.0, 1234567890, -1234567890, 1234567890.12345678, -1234567890.12345678, -0.12345678
+        /// --------------------------------------------------
+        /// ^                : Asserts the start of the string.
+        /// (                : Starting optional group 1
+        ///     \$           : Required $ Sign
+        /// |                : OR
+        ///     \$           : Required $ Sign
+        ///     \s           : Required space
+        /// )?               : End optional group 1
+        /// \-?              : Optional negative
+        /// \d{1,10}         : Required Digit only. Legnth: Min 1, Max 10
+        /// \.               : Required decimal
+        /// \d{2,4}          : Required Digit only. Legnth: Min 2, Max 4
+        /// $                : Asserts the end of the string.
+        /// </code>
+        /// </summary>
+        [RegexDefinition(@"^(\$|\$\s)?\-?\d{1,10}\.\d{2,4}$", @"[^$\s\d\.]", "$ 1.00, $123456789.1234", SanitizeStrategy.CustomMethod, "SanitizeMoneyGeneric")]
+        Money,
+        /// <summary>
+        /// <code>
+        /// Verifies if a string is numerica, which includes optional negatives and required deciamals.
+        /// Pattern: @"^\-?\d{1,10}\.\d{1,8}$"
+        /// Allows: 1.0, 1234567890.12345678, -1234567890.12345678, -0.12345678
+        /// --------------------------------------------------
+        /// ^                : Asserts the start of the string.
+        /// \-?              : Optional negative
+        /// \d{1,10}         : Required Digit only. Legnth: Min 1, Max 10
+        /// \.               : Required decimal
+        /// \d{1,8}          : Required Digit only. Legnth: Min 1, Max 8
+        /// $                : Asserts the end of the string.
+        /// </code>
+        /// </summary>
+        [RegexDefinition(@"^\-?\d{1,10}\.\d{1,8}$", @"[^\-\d\.]", "1.0, 1234567890.12345678, -1234567890.12345678, -0.12345678", SanitizeStrategy.CustomMethod, "SanitizeDecimalGeneric")]
+        Decimal8,
+        [RegexDefinition("^[0-9]+$", "[^0-9]", "65535")]
         NumericUnsigned,
         [RegexDefinition("^-?(?!-)[0-9]+$", "[^-0-9]", "-32768, 32767")]
         NumericSigned,
@@ -104,22 +142,22 @@
         Ssn,
         /// <summary>
         /// <code>
-        /// Pattern: "^[#]?(([a-fA-F0-9]{8})|([a-fA-F0-9]{6})|([a-fA-F0-9]{3}))$"
+        /// Pattern: "^#?([a-fA-F0-9]{8}|[a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
         /// Custom sanitation method added.  "#CF#CCFF" will return "#CFCCFF"
         /// -------
-        /// ^: Asserts the start of the string.
-        /// [#]?: Optional # at the start.
-        /// (: Starting group 1 of 3. One of the three groups is required.
-        /// 	[a-fA-F0-9]{8}:	Required Alpha (A - F), upper or lower case, and/or Numeric with required length of 8 bytes.
-        /// |: or group 2
-        /// 	[a-fA-F0-9]{6}:	Required Alpha (A - F), upper or lower case, and/or Numeric with required length of 6 bytes.
-        /// |: or group 3
-        /// 	[a-fA-F0-9]{3}:	Required Alpha (A - F), upper or lower case, and/or Numeric with required length of 3 bytes.
-        /// ): Ending group 1 of 3
+        /// ^                : Asserts the start of the string.
+        /// #?               : Optional # at the start.
+        /// (                : Starting group 1 of 3. One of the three groups is required.
+        ///    [a-fA-F0-9]{8}: Required Alpha (A - F), upper or lower case, and/or Numeric with required length of 8 bytes.
+        /// |                : OR group 2
+        ///    a-fA-F0-9]{6} : Required Alpha (A - F), upper or lower case, and/or Numeric with required length of 6 bytes.
+        /// |                : or group 3
+        ///    [a-fA-F0-9]{3}:	Required Alpha (A - F), upper or lower case, and/or Numeric with required length of 3 bytes.
+        /// )                : Ending group 1 of 3
         /// $: Asserts the end of the string.
         /// </code>
         /// </summary>
-        [RegexDefinition("^[#]?([a-fA-F0-9]{8}|[a-fA-F0-9]{6}|[a-fA-F0-9]{3})$", "[^#a-fA-F0-9$]", "#CCC, CCC, #C0C0C0, C0C0C0, #FFC0C0C0, FFC0C0C0", SanitizeStrategy.CustomMethod, "SanitizeHexCodeGeneric")]
+        [RegexDefinition("^#?([a-fA-F0-9]{8}|[a-fA-F0-9]{6}|[a-fA-F0-9]{3})$", "[^#a-fA-F0-9$]", "#CCC, CCC, #C0C0C0, C0C0C0, #FFC0C0C0, FFC0C0C0", SanitizeStrategy.CustomMethod, "SanitizeHexCodeGeneric")]
         Hex
     }
 
