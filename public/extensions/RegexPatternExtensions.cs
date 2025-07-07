@@ -45,21 +45,22 @@ namespace Chizl
 
             switch (attr.Strategy)
             {
+                // Using the standard Regex.Replace only
                 case SanitizeStrategy.SimpleReplace:
                     // Get Regex object that might be cached.
                     return RegexHelper.GetSanitizationRegex(val).Replace(input, replaceWith);
-
+                // Pull matches and only keeping the first one.
                 case SanitizeStrategy.KeepFirstMatch:
                     // Implement logic to keep only the first match of the SanitizationPattern
                     // This will likely involve a MatchEvaluator
                     return KeepFirstMatchSanitizer(input, attr.SanitizationPattern, replaceWith);
-
+                // Fully customizable method to process sanitation.
                 case SanitizeStrategy.CustomMethod:
                     // Use reflection to call the specified custom sanitizer method
                     return InvokeCustomSanitizer(input, attr.CustomSanitizerMethodName, attr.SanitizationPattern, replaceWith);
 
                 default:
-                    return input; // Default to returning input
+                    return input; // Default to returning input.  Should never occur since strategy a required parameter.
             }
         }
         /// <summary>
