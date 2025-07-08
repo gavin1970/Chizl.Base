@@ -40,6 +40,7 @@
         /// Verifies if a string is numeric, which includes negatives and deciamals.
         /// Pattern: @"^(\$|\$\s-?|-)?\d{1,9}\.\d{2,4}$"
         /// Allows: 1.0, 1234567890, -1234567890, 1234567890.12345678, -1234567890.12345678, -0.12345678
+        /// Custom sanitation method added.
         /// --------------------------------------------------
         /// ^                : Asserts the start of the string.
         /// (                : Starting optional group 1
@@ -95,6 +96,7 @@
         /// Verifies if a string is numeric, which includes optional negatives and required deciamals.
         /// Pattern: @"^\-?\d{1,10}\.\d{1,8}$"
         /// Allows: 1.0, 1234567890.12345678, -1234567890.12345678, -0.12345678
+        /// Custom sanitation method added.
         /// --------------------------------------------------
         /// ^                : Asserts the start of the string.
         /// \-?              : Optional negative
@@ -149,22 +151,22 @@
         /// <code>
         /// Pattern: @"^(\(\d{3}\)[\s]?|\d{3}-)(\d{3}-\d{4})$"
         /// -------
-        /// ^: Asserts the start of the string.
-        /// (: Starting group 1 of 2. One of the two groups is required.
-        /// 	\(: Required open bracket for area code
-        /// 	\d{3}: Required 3 digit for area code
-        /// 	\): Required close bracket for area code
-        /// 	[\s]?: Optional space
-        /// |: or group 2
-        /// 	\d{3}: Required 3 digit for area code
-        /// 	-: Required dash behind area code
-        /// ): Ending group 1 of 2
-        /// (: Starting required group 3.
-        /// 	\d{3}: Required 3 digit for prefix
-        /// 	-: Required dash behind prefix
-        /// 	\d{4}: Required last 4 of phone number
-        /// ): Ending group 3
-        /// $: Asserts the end of the string.
+        /// ^                : Asserts the start of the string.
+        /// (                : Starting group 1 of 2. One of the two groups is required.
+        /// 	\(           : Required open bracket for area code
+        /// 	\d{3}        : Required 3 digit for area code
+        /// 	\)           : Required close bracket for area code
+        /// 	[\s]?        : Optional space
+        /// |                : or group 2
+        /// 	\d{3}        : Required 3 digit for area code
+        /// 	-            : Required dash behind area code
+        /// )                : Ending group 1 of 2
+        /// (                : Starting required group 3.
+        /// 	\d{3}        : Required 3 digit for prefix
+        /// 	-            : Required dash behind prefix
+        /// 	\d{4}        : Required last 4 of phone number
+        /// )                : Ending group 3
+        /// $                : Asserts the end of the string.
         /// </code>
         /// </summary>
         [RegexDefinition(@"^(\(\d{3}\)[\s]?|\d{3}\-)(\d{3}\-\d{4})$", @"[^\(\)\d\-]", "(800) 555-1212, (800)555-1212, 800-555-1212")]
@@ -204,20 +206,20 @@
         /// <code>
         /// Pattern: @"^(?!666|000|9\d{2})\d{3}\-(?!00)\d{2}\-(?!0000)\d{4}$"
         /// -------
-        /// ^: Asserts the start of the string.
+        /// ^                : Asserts the start of the string.
         /// (?!666|000|9\d{2}): This is a negative lookahead that checks the first three digits.
-        /// 	?!: Specifies that the following patterns must not be present at this position.
-        /// 	666: The number 666 has never been assigned as an Area Number.
-        /// 	000: An Area Number of 000 is invalid.
-        /// 	9\d{2}: Area Numbers in the 900-999 range are not used for SSNs. They are reserved for Taxpayer Identification Numbers (TINs).
-        /// \d{3}: Matches the first three digits (the Area Number), provided they do not violate the preceding negative lookahead.
-        /// -: Matches the hyphen separator.
-        /// (?!00): This negative lookahead ensures the Group Number (the middle two digits) is not 00.
-        /// \d{2}: Matches the two digits of the Group Number.
-        /// -: Matches the second hyphen separator.
-        /// (?!0000): A final negative lookahead to ensure the Serial Number (the last four digits) is not 0000.
-        /// \d{4}: Matches the four digits of the Serial Number.
-        /// $: Asserts the end of the string.
+        /// 	?!           : Specifies that the following patterns must not be present at this position.
+        /// 	666          : The number 666 has never been assigned as an Area Number.
+        /// 	000          : An Area Number of 000 is invalid.
+        /// 	9\d{2}       : Area Numbers in the 900-999 range are not used for SSNs. They are reserved for Taxpayer Identification Numbers (TINs).
+        /// \d{3}            : Matches the first three digits (the Area Number), provided they do not violate the preceding negative lookahead.
+        /// -                : Matches the hyphen separator.
+        /// (?!00)           : This negative lookahead ensures the Group Number (the middle two digits) is not 00.
+        /// \d{2}            : Matches the two digits of the Group Number.
+        /// -                : Matches the second hyphen separator.
+        /// (?!0000)         : A final negative lookahead to ensure the Serial Number (the last four digits) is not 0000.
+        /// \d{4}            : Matches the four digits of the Serial Number.
+        /// $                : Asserts the end of the string.
         /// </code>
         /// </summary>
         [RegexDefinition(@"^(?!666|000|9\d{2})\d{3}\-(?!00)\d{2}\-(?!0000)\d{4}$", @"[^0-9\-]", "111-22-3333")]
@@ -236,11 +238,44 @@
         /// |                : or group 3
         ///    [a-fA-F0-9]{3}:	Required Alpha (A - F), upper or lower case, and/or Numeric with required length of 3 bytes.
         /// )                : Ending group 1 of 3
-        /// $: Asserts the end of the string.
+        /// $                : Asserts the end of the string.
         /// </code>
         /// </summary>
         [RegexDefinition(@"^#?([a-fA-F0-9]{8}|[a-fA-F0-9]{6}|[a-fA-F0-9]{3})$", "[^#a-fA-F0-9$]", "#CCC, CCC, #C0C0C0, C0C0C0, #FFC0C0C0, FFC0C0C0", SanitizeStrategy.CustomMethod, "SanitizeHexCodeGeneric")]
-        Hex
+        Hex,
+        /// <summary>
+        /// <code>
+        /// Email Address Validation.
+        /// NOTE: Domain names and their extensions can be 64 bytes between '.' and allowed to have '-' within them, but not start or end with them.
+        ///       The root name "before the @" can have (-, %, +, and _), but can not start or end with them.
+        ///       This makes validating more complex since email's can also be within many sub-domains.
+        ///       This email pattern is experimental, so if you have a better way to match up with all these rules, please let me know.
+        /// Pattern: @"^[a-zA-Z0-9]+([\._\%\+\-]*[a-zA-Z0-9]+){0,63}@[a-zA-Z0-9]{1}([a-zA-Z0-9\-]{1,62}\.){0,3}[a-zA-Z0-9]{1}[a-zA-Z0-9\-]{1,61}[a-zA-Z0-9]{1}\.[a-zA-Z]{2,63}$"
+        /// -------
+        /// ^                : Asserts the start of the string.
+        /// [a-zA-Z0-9]+     : Require at least 1 or more (+) A through F, a through f, or 0 through 9
+        /// (                : Starting Optional group
+        ///     [a-zA-Z0-9]+ : Require at least 1 or more (+) A through F, a through f, or 0 through 9
+        ///     [\._\%\+\-]* : Optional characters 0 or more (., _, %, +, -)
+        /// ){0,63}          : End Optional Group, but can't have more than 63 in length.
+        /// @                : Require '@'
+        /// [a-zA-Z0-9]{1}   : Require A through F, a through f, or 0 through 9, Length: Min 1, Max 1.  First char can not be -
+        /// (                : Starting Optional group
+        ///     [a-zA-Z0-9\-]{1,62}
+        ///     \.
+        /// ){0,3}           : End Optional Group, but can't have more than 3 in length.
+        /// [a-zA-Z0-9]{1}
+        /// [a-zA-Z0-9\-]{1,61}
+        /// [a-zA-Z0-9]{1}
+        /// \.
+        /// [a-zA-Z]{2,63}
+        /// $                : Asserts the end of the string.
+        /// </code>
+        /// </summary>
+        // [RegexDefinition(@"^[a-zA-Z0-9]+([\._\%\+\-]*[a-zA-Z0-9]+){0,63}@[a-zA-Z0-9]{1}([a-zA-Z0-9\-]{1,62}\.){0,3}[a-zA-Z0-9]{1}[a-zA-Z0-9\-]{1,61}[a-zA-Z0-9]{1}\.[a-zA-Z]{2,63}$", "[^#a-fA-F0-9$]", "#CCC, CCC, #C0C0C0, C0C0C0, #FFC0C0C0, FFC0C0C0", SanitizeStrategy.CustomMethod, "SanitizeHexCodeGeneric")]
+        //Email,
+        // [RegexDefinition(@"^[a-zA-Z0-9]+([\._\%\+\-]*[a-zA-Z0-9]+){0,63}@[a-zA-Z0-9](\.?[a-zA-Z0-9\-]{1,63}){1,3}[a-zA-Z0-9]\.[a-zA-Z]{2,63}$", "[^#a-fA-F0-9$]", "#CCC, CCC, #C0C0C0, C0C0C0, #FFC0C0C0, FFC0C0C0", SanitizeStrategy.CustomMethod, "SanitizeHexCodeGeneric")]
+        //                  [a-zA-Z0-9]+([\._\%\+\-]*[a-zA-Z0-9]+){0,63}@[a-zA-Z0-9]{1}([a-zA-Z0-9\-]{1,62}\.){0,3}[a-zA-Z0-9]{1}[a-zA-Z0-9\-]{1,61}[a-zA-Z0-9]{1}\.[a-zA-Z]{2,63}
     }
 
     public enum RegexPatternType
