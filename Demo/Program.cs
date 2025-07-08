@@ -8,7 +8,7 @@ namespace Demo
     internal class Program
     {
         const string _replaceWith = " ";
-        static readonly string _reset = ConsoleHelper.ResetColor;
+        static readonly string _reset = ConsoleHelper.GetColorReset;
         static readonly string _values = Color.FromArgb(192, 192, 0).FGAscii();
         static readonly string _success = Color.LawnGreen.FGAscii();
         static readonly string _fail = Color.FromArgb(255, 128, 128).FGAscii();
@@ -21,6 +21,19 @@ namespace Demo
 
         static void Main(string[] args)
         {
+            var fgLawnGreen = Color.LawnGreen.FGAscii();
+            var fgYellow = Color.Yellow.FGAscii();
+            var fgRed = Color.FromArgb(255, 0, 0).FGAscii();
+            var resetClr = ConsoleHelper.GetColorReset;
+
+            Console.WriteLine($"{fgLawnGreen}Task 1, Complete.");
+            Console.WriteLine($"{fgYellow}Task 2, In Progress.");
+            Console.WriteLine($"{fgRed}Task 3, Not Started.");
+            ConsoleHelper.ColorReset();
+
+            Console.WriteLine($"We are {fgLawnGreen}Good{resetClr} to go.");
+            Console.ReadKey(true);
+
             ShowDefaults();
             ShowSubString();
             ShowRegexPatterns();
@@ -76,6 +89,7 @@ namespace Demo
         }
         static void ShowRegexPatterns()
         {
+            //dummy data
             List<string> exList = new List<string>() 
             {
                 "-Alpha_!1234 5Test.67", "-Alpha_!1234 5Test678.90",
@@ -101,11 +115,21 @@ namespace Demo
             foreach (RegexPatterns enumPat in Enum.GetValues(typeof(RegexPatterns)))
             {
                 //display header
-                WriteHeader(enumPat);
+                ShowHeader(enumPat);
 
                 //loop through all example strings and run it against each pattern.
                 for (int i = 0; i < exList.Count; i++)
                 {
+                    var recNo = ((i - 1) % 5);
+                    if (i > 5 && recNo.Equals(0))
+                    {
+                        Console.WriteLine("\nPress 'Esc' to exit.  Press any other key to continue.");
+                        if (Finish().Equals(ConsoleKey.Escape))
+                            return;
+
+                        //display header
+                        ShowHeader(enumPat);
+                    }
                     //display each
                     DisplayMatch((i + 1), enumPat, exList[i]);
                     Console.WriteLine();
@@ -146,7 +170,7 @@ namespace Demo
                 Console.WriteLine($"{i}: IsMatch(\"{newStr2}\") -> {fgClr}{match}{_reset}");
             }
         }
-        static void WriteHeader(RegexPatterns eNum)
+        static void ShowHeader(RegexPatterns eNum)
         {
             var name = $"------======[ {_success}{eNum.Name()}{_reset} ]======------";
             Console.WriteLine(name);
@@ -157,10 +181,11 @@ namespace Demo
             Console.WriteLine($"Example(s)      : {eNum.GetInfo(RegexPatternType.Examples, false)}");
             Console.WriteLine(new string('-', name.Length - _len));
         }
-        static void Finish()
+        static ConsoleKey Finish()
         {
-            Console.ReadKey(true);
-            ConsoleHelper.ResetBuffer();
+            var key = Console.ReadKey(true).Key;
+            ConsoleHelper.ResetConsoleBuffer();
+            return key;
         }
     }
 }
