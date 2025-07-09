@@ -15,31 +15,45 @@ namespace Demo
         static readonly string _function = Color.FromArgb(255, 255, 0).FGAscii();
         static readonly string _background = Color.FromArgb(48, 48, 48).BGAscii();
         static readonly string _null = $"{_fail}null{_reset}";
+        static readonly int _len = $"{_success}{_reset}".Length;
         static readonly List<Type> _typeList = new List<Type>() { typeof(int), typeof(string), typeof(DateTime),
                                                                   typeof(bool), typeof(RegexPatterns), typeof(Color) };
-        static readonly int _len = $"{_success}{_reset}".Length;
 
         static void Main(string[] args)
         {
-            var fgLawnGreen = Color.LawnGreen.FGAscii();
-            var fgYellow = Color.Yellow.FGAscii();
-            var fgRed = Color.FromArgb(255, 0, 0).FGAscii();
-            var resetClr = ConsoleHelper.GetColorReset;
-
-            Console.WriteLine($"{fgLawnGreen}Task 1, Complete.");
-            Console.WriteLine($"{fgYellow}Task 2, In Progress.");
-            Console.WriteLine($"{fgRed}Task 3, Not Started.");
-            ConsoleHelper.ColorReset();
-
-            Console.WriteLine($"We are {fgLawnGreen}Good{resetClr} to go.");
-            Console.ReadKey(true);
-
-            ShowDefaults();
-            ShowSubString();
-            ShowRegexPatterns();
+            if (ShowConsoleHlper())
+                return;
+            if (ShowDefaults())
+                return;
+            if (ShowSubString())
+                return;
+            if (ShowRegexPatterns())
+                return;
         }
 
-        static void ShowDefaults()
+        static bool ShowConsoleHlper()
+        {
+            var lawnGreen = Color.LawnGreen;
+
+            var fgLawnGreen = lawnGreen.FGAscii();
+            var fgYellow = Color.Yellow.FGAscii();
+            var fgRed = Color.FromArgb(255, 0, 0).FGAscii();
+            var bgWhite = Color.FromArgb(255, 255, 255).BGAscii();
+
+            var resetExample1 = lawnGreen.ResetAscii();         //Same as resetExample2, just a different way.
+            var resetExample2 = ConsoleHelper.GetColorReset;    //same as resetExample1, just a different way.
+
+            Console.WriteLine($"Task 1, {fgLawnGreen}Complete{resetExample1}.");
+            Console.WriteLine($"Task 2, {fgYellow}In Progress{resetExample1}.");
+            Console.WriteLine($"Task 3,{bgWhite} {fgRed}Not Started {resetExample1}");
+            
+            ConsoleHelper.ColorReset();
+            Console.WriteLine($"We are {fgYellow}getting{resetExample2} there...");
+
+            return Finish().Equals(ConsoleKey.Escape);
+        }
+
+        static bool ShowDefaults()
         {
             foreach(var t in _typeList)
             {
@@ -49,9 +63,9 @@ namespace Demo
                 Console.WriteLine($"Type: {t.FullName}: Default: >>{defVal}<<");
             }
 
-            Finish();
+            return Finish().Equals(ConsoleKey.Escape);
         }
-        static void ShowSubString()
+        static bool ShowSubString()
         {
             var size = 6;
             var alphabet = "abcdefghijklmnopqrstuvwxyz";
@@ -85,9 +99,9 @@ namespace Demo
             Console.WriteLine($"Round up: {dbl} - dbl.ClampTo(90.0, 100.0); - this is because min value is 90.0.\n" +
                               $"This ClampTo() extension works in netstandard2.0-2.1, .net4.6-net9.0");
 
-            Finish();
+            return Finish().Equals(ConsoleKey.Escape);
         }
-        static void ShowRegexPatterns()
+        static bool ShowRegexPatterns()
         {
             //dummy data
             List<string> exList = new List<string>() 
@@ -109,7 +123,8 @@ namespace Demo
                              $"string hex = RegexPatterns.Hex.Sanitize(\"#ZFF#00FF\");\n" +
                              $"Response: {RegexPatterns.Hex.Sanitize("#ZFF#00FF")}");
 
-            Finish();
+            if (Finish().Equals(ConsoleKey.Escape))
+                return true;
 
             //loop through Enum RegexPatterns
             foreach (RegexPatterns enumPat in Enum.GetValues(typeof(RegexPatterns)))
@@ -123,20 +138,22 @@ namespace Demo
                     var recNo = ((i - 1) % 5);
                     if (i > 5 && recNo.Equals(0))
                     {
-                        Console.WriteLine("\nPress 'Esc' to exit.  Press any other key to continue.");
                         if (Finish().Equals(ConsoleKey.Escape))
-                            return;
+                            return true;
 
                         //display header
                         ShowHeader(enumPat);
                     }
                     //display each
                     DisplayMatch((i + 1), enumPat, exList[i]);
-                    Console.WriteLine();
+                    //Console.WriteLine();
                 }
 
-                Finish();
+                if (Finish().Equals(ConsoleKey.Escape))
+                    return true;
             }
+            
+            return false;
         }
         static void DisplayMatch(int i, RegexPatterns regPat, string str)
         {
@@ -183,6 +200,7 @@ namespace Demo
         }
         static ConsoleKey Finish()
         {
+            Console.WriteLine("\nPress 'Esc' to exit.  Press any other key to continue.");
             var key = Console.ReadKey(true).Key;
             ConsoleHelper.ResetConsoleBuffer();
             return key;

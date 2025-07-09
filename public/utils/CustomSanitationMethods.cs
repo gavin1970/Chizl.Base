@@ -34,7 +34,6 @@ namespace Chizl
         public static string SanitizeMoneyGeneric(string input, string pattern, string replaceWith)
         {
             var sanitized = CommonParts(input, pattern, replaceWith, "$", (new char[3] { '.', ' ', '-' }));
-
             //build array to make sure there isn't more than 1 decimal
             var sans = sanitized.Split(new char[] { '-' }, System.StringSplitOptions.RemoveEmptyEntries);
             //if a special char exists, put it back together, removing any duplicates.
@@ -58,7 +57,9 @@ namespace Chizl
 
             //More customization. Spaces are allowed, but only 1 and after the $.
             //duplicates have already been removed, but if there is a space and it's not after the $, remove it.
-            if (sanitized.IndexOf(" ") > -1 && sanitized.IndexOf(" ") != 1)
+            var needsRemoval = sanitized.IndexOf(" ") > -1 && sanitized.IndexOf(" ") != 1;
+            //if it's the 2 char, but the first char is not the $, then we still need it cleared.
+            if (needsRemoval || !needsRemoval && sanitized.IndexOf("$") != 0)
                 sanitized = sanitized.Replace(" ", replaceWith);
 
             return sanitized;
@@ -87,9 +88,10 @@ namespace Chizl
                 {
                     //build array to make sure there isn't more than 1 decimal
                     var sans = sanitized.Split(new char[] { ch }, System.StringSplitOptions.RemoveEmptyEntries);
-                    //if a special char exists, put it back together, removing any duplicates.
-                    if (sans.Length > 1)
-                        sanitized = $"{sans[0]}{ch}{sans[1]}";
+                    sanitized = "";
+                    //if a special char exists, put it back together, keeping the first and removing any duplicates.
+                    for (int i=0; i<sans.Length; i++)
+                        sanitized += $"{sans[i]}{(i.Equals(0) ? $"{ch}" : "")}";
                 }
             }
 

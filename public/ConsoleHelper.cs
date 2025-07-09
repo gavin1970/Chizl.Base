@@ -29,7 +29,7 @@ namespace Chizl
         ///     ConsoleHelper.ColorReset();
         /// </code>
         /// </summary>
-        public static void ColorReset() { Console.Write("\u001b[0m"); }
+        public static void ColorReset() { Console.Write(GetColorReset); }
         /// <summary>
         /// Will clear the console screen and the entire console buffer.
         /// <code>

@@ -19,9 +19,10 @@ namespace Chizl
         /// <returns>Ascii Escape characters</returns>
         public static string BGAscii(this Color @this) => GetAsciiEscape(@this, false);
         /// <summary>
-        /// Color.<any>.Reset() will clear all foreground and background console colors.
+        /// Color.<any>.ResetAscii() will clear all foreground and background console colors from this point after.
         /// </summary>
         /// <returns>Ascii Escape characters</returns>
+        public static string ResetAscii(this Color _) => ConsoleHelper.GetColorReset;
 
         #region Private Support Methods
         private static string GetAsciiEscape(Color clr, bool isForeground)
