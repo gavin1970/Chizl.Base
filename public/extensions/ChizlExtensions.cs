@@ -118,6 +118,11 @@ namespace Chizl
             if (value.CompareTo(max) > 0) return max;
             return value;
         }
+        /// <summary>
+        /// For some reason, MS didn't put a Guid.IsEmpty property, but has a Guid.Empty static property.  This fixed that.
+        /// </summary>
+        /// <returns>true: Guid was created with Guid.Empty static property.  false: Guid was initialized properly.</returns>
+        public static bool IsEmpty(this Guid guid) => guid == Guid.Empty;
 
         #region Private Helper Methods
         private static bool IsSupportedNumeric<T>() => _validBoundaryTypes.Contains(typeof(T));
