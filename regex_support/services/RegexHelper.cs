@@ -21,7 +21,7 @@ namespace Chizl.RegexSupport
             return _validationCache.GetOrAdd(pattern, key =>
             {
                 var attr = GetAttribute(key);
-                return new Regex(attr.ValidationPattern);
+                return new Regex(attr.ValidationPattern, RegexOptions.Compiled | RegexOptions.CultureInvariant);
             });
         }
 
@@ -30,7 +30,7 @@ namespace Chizl.RegexSupport
             return _sanitizationCache.GetOrAdd(pattern, key =>
             {
                 var attr = GetAttribute(key);
-                return new Regex(attr.SanitizationPattern);
+                return new Regex(attr.SanitizationPattern, RegexOptions.Compiled | RegexOptions.CultureInvariant);
             });
         }
 

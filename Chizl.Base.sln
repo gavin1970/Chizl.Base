@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chizl.Base", "Chizl.Base.cs
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo", "Demo\Demo.csproj", "{412EF13E-1D60-4476-99EE-B4C59DB4EE5F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chizl.Base.Tests", "Tests\Chizl.Base.Tests.csproj", "{642C22CC-74B4-06F1-3110-A96C6A46D04F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{412EF13E-1D60-4476-99EE-B4C59DB4EE5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{412EF13E-1D60-4476-99EE-B4C59DB4EE5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{412EF13E-1D60-4476-99EE-B4C59DB4EE5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{642C22CC-74B4-06F1-3110-A96C6A46D04F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{642C22CC-74B4-06F1-3110-A96C6A46D04F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{642C22CC-74B4-06F1-3110-A96C6A46D04F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{642C22CC-74B4-06F1-3110-A96C6A46D04F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
