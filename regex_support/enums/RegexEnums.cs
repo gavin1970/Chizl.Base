@@ -1,4 +1,4 @@
-﻿namespace Chizl
+﻿namespace Chizl.RegexSupport
 {
     public enum RegexPatterns
     {

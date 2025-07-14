@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Chizl
+namespace Chizl.RegexSupport
 {
     [AttributeUsage(AttributeTargets.Field)]
     public class RegexDefinitionAttribute : Attribute

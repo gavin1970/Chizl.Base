@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Reflection;
 using System.Diagnostics;
-using Chizl.Base.Internal;
 using System.Text.RegularExpressions;
 
-namespace Chizl
+namespace Chizl.RegexSupport
 {
     public static class RegexPatternExtensions
     {

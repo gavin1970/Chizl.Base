@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Chizl
+namespace Chizl.ConsoleSupport
 {
     public static class ConsoleHelper
     {

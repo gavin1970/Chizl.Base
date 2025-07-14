@@ -1,8 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Chizl
+namespace Chizl.RegexSupport
 {
-    internal class CustomSanitationMethods
+    internal sealed class CustomSanitationMethods
     {
         /// <summary>
         /// Custom sanitizer method for Hex

@@ -1,7 +1,10 @@
-﻿using Chizl;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Collections.Generic;
+using Chizl;
+using Chizl.RegexSupport;
+using Chizl.ConsoleSupport;
+using System.Runtime.CompilerServices;
 
 namespace Demo
 {
@@ -21,6 +24,13 @@ namespace Demo
 
         static void Main(string[] args)
         {
+            var str = "Gavin Landon";
+            var startIndex = 3;
+            var length = 5;
+
+            var newStr = str[startIndex..(startIndex + length)];
+            var newStr2 = str[startIndex..str.Length];
+
             if (ShowConsoleHlper())
                 return;
             if (ShowDefaults())
@@ -33,6 +43,7 @@ namespace Demo
 
         static bool ShowConsoleHlper()
         {
+            DemoTitle("Showing Console Helper for setting 24 bit color within the console.");
             var lawnGreen = Color.LawnGreen;
 
             var fgLawnGreen = lawnGreen.FGAscii();
@@ -45,17 +56,21 @@ namespace Demo
 
             Console.WriteLine($"Task 1, {fgLawnGreen}Complete{resetExample1}.");
             Console.WriteLine($"Task 2, {fgYellow}In Progress{resetExample1}.");
-            Console.WriteLine($"Task 3,{bgWhite} {fgRed}Not Started {resetExample1}");
-            
+            Console.WriteLine($"Task 3,{bgWhite} {fgRed}Not Started ");
+
+            //The following is another example of GetColorReset, but the following does the Console.Write for you.
+            //Only useful when your not within a Console.Write/WriteLine yourself.
+            //ALSO NOTE: It doesn't take up any space on the screen.
             ConsoleHelper.ColorReset();
+
             Console.WriteLine($"We are {fgYellow}getting{resetExample2} there...");
 
             return Finish().Equals(ConsoleKey.Escape);
         }
-
         static bool ShowDefaults()
         {
-            foreach(var t in _typeList)
+            DemoTitle("Showing Types and their default values");
+            foreach (var t in _typeList)
             {
                 var defVal = t.GetDefaultValue();
                 if (defVal == null)
@@ -67,10 +82,11 @@ namespace Demo
         }
         static bool ShowSubString()
         {
+            DemoTitle("Showing a more controled version of Substring.\nThis validates and correct obvious issues.\n\nAuto Fixes:\nIf startindex is less than 0:\n - startindex will be moved to 0.\nIf startindex + length is greater than string.length:\n - length will be audo adjusted length to get rest of string.");
             var size = 6;
+            
             var alphabet = "abcdefghijklmnopqrstuvwxyz";
             Console.WriteLine($"{alphabet}:");
-
             var test = alphabet.SubstringEx(-1, size);
             test = test == null ? _null : test;
             Console.WriteLine($"alphabet.SubstringEx(-1, {size}) = {test}");
@@ -204,6 +220,12 @@ namespace Demo
             var key = Console.ReadKey(true).Key;
             ConsoleHelper.ResetConsoleBuffer();
             return key;
+        }
+        static void DemoTitle(string title)
+        {
+            Console.Clear();
+            var bar = new string('=', title.Length);
+            Console.WriteLine($"{bar}\n{title}\n{bar}\n");
         }
     }
 }

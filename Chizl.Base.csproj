@@ -17,8 +17,8 @@
 				<Company>Chizl.com</Company>
 				<Copyright>© 2025 chizl.com</Copyright>
 				<PackageTags>base-library,netstandard2.0,netstandard2.1</PackageTags>
-				<FileVersion>5.07.13.0754</FileVersion>
-				<Version>5.07.13.0</Version>
+				<FileVersion>5.07.14.2205</FileVersion>
+				<Version>5.07.14.0</Version>
 				<AssemblyVersion>5.07.0.0</AssemblyVersion>
 		</PropertyGroup>
 
@@ -26,6 +26,10 @@
 		  <Compile Remove="Demo\**" />
 		  <EmbeddedResource Remove="Demo\**" />
 		  <None Remove="Demo\**" />
+		</ItemGroup>
+
+		<ItemGroup>
+		  <Folder Include="console_support\services\" />
 		</ItemGroup>
 
 </Project>
