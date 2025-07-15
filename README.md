@@ -1,6 +1,13 @@
 # Chizl.Base
 netstandard2.0/netstandard2.1 library.  Added some extensions and simple Regex parterns that can be validated on the fly, with no need to add regex to your own class.
 
+## Solution Comes With:
+
+* NET8 Demo project 
+	- Goes through using each class and method and comments around each line to help understand it's reasoning.
+* NET8 xUnit project with `coverlet.collector ` for code coverage.
+	- Currenly only runs Regex Pattern test. (dotnet test / dotnet test --collect:"XPlat Code Coverage")
+
 ## Preset Base Regex Patterns
 Currently there are 12 preset extensive regex patterns and some with custom sanitation, "Replace", methods for clean up.
 ```csharp

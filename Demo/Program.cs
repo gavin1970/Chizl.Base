@@ -19,18 +19,33 @@ namespace Demo
         static readonly string _background = Color.FromArgb(48, 48, 48).BGAscii();
         static readonly string _null = $"{_fail}null{_reset}";
         static readonly int _len = $"{_success}{_reset}".Length;
-        static readonly List<Type> _typeList = new List<Type>() { typeof(int), typeof(string), typeof(DateTime),
-                                                                  typeof(bool), typeof(RegexPatterns), typeof(Color) };
+        //help prevent duplicates in the test array.
+        static List<string> _matchPattern = new List<string>();
+        static List<string> _sanitizePattern = new List<string>();
+
+        //demo types
+        static readonly List<Type> _typeList = 
+        [ 
+            typeof(int), typeof(string), typeof(DateTime), 
+            typeof(bool), typeof(RegexPatterns), typeof(Color) 
+        ];
+
+        //dummy data
+        static readonly List<string> _exList =
+        [
+            "-Alpha_!1234 5Test.67", "-Alpha_!1234 5Test678.90",
+            "~Alpha_!123-4 5Test.67", "~Alpha_!123-4 5Test6-78.90",
+            "~Alpha_!($12,3)4 5Test,6-78.90", "~+1 Alpha_!(123) 45Test6-7.890",
+            "~Alpha_!123-4 5-Test67.89", "~Alpha1-_!123-d45Test6-7.890",
+            "A#h12C4D6", "#h12C#4D6", "#12CZ4D6",
+        ];
+
+        static Array _allRegValues = Enum.GetValues(typeof(RegexPatterns));
 
         static void Main(string[] args)
         {
-            var str = "Gavin Landon";
-            var startIndex = 3;
-            var length = 5;
-
-            var newStr = str[startIndex..(startIndex + length)];
-            var newStr2 = str[startIndex..str.Length];
-
+            //if (BuildTests())
+            //    return;
             if (ShowConsoleHlper())
                 return;
             if (ShowDefaults())
@@ -117,17 +132,38 @@ namespace Demo
 
             return Finish().Equals(ConsoleKey.Escape);
         }
+        static bool BuildTests()
+        {
+            bool[] bools = [true, false];
+            // I want the tests grouped
+            foreach (var b in bools) 
+            {
+                DemoTitle($"Creating UnitTests {(b?"Match":"Sanitize")} array for RegexPatterns.  Pattern Count: '{_allRegValues.Length}`,  Data Count: `{_exList.Count}`.");
+                //loop through Enum RegexPatterns
+                foreach (RegexPatterns enumPat in _allRegValues)
+                {
+                    //loop through all example strings and run it against each pattern.
+                    for (int i = 0; i < _exList.Count; i++)
+                    {
+                        //display each
+                        RegExUnitTestArray((i + 1), enumPat, _exList[i], b);
+                    }
+                }
+
+                var arrUsed = b ? _matchPattern : _sanitizePattern;
+                foreach(var s in arrUsed)
+                {
+                    Console.WriteLine(s);
+                }
+
+                if (Finish().Equals(ConsoleKey.Escape))
+                    return true;
+            }
+            return false;
+        }
         static bool ShowRegexPatterns()
         {
-            //dummy data
-            List<string> exList = new List<string>() 
-            {
-                "-Alpha_!1234 5Test.67", "-Alpha_!1234 5Test678.90",
-                "~Alpha_!123-4 5Test.67", "~Alpha_!123-4 5Test6-78.90",
-                "~Alpha_!($12,3)4 5Test,6-78.90", "~+1 Alpha_!(123) 45Test6-7.890",
-                "~Alpha_!123-4 5-Test67.89", "~Alpha1-_!123-d45Test6-7.890",
-                "A#h12C4D6", "#h12C#4D6", "#12CZ4D6",
-            };
+            DemoTitle("Demoing Hex IsMatch() and Sanitize() methods");
 
             Console.WriteLine($"Example of usage:\n" +
                              $"bool isHex = RegexPatterns.Hex.IsMatch(\"#FF00FF\");\n" +
@@ -142,14 +178,16 @@ namespace Demo
             if (Finish().Equals(ConsoleKey.Escape))
                 return true;
 
+            DemoTitle($"Showing all `{_allRegValues.Length}` Regex Patterns against `{_exList.Count}` dummy strings.");
+
             //loop through Enum RegexPatterns
-            foreach (RegexPatterns enumPat in Enum.GetValues(typeof(RegexPatterns)))
+            foreach (RegexPatterns enumPat in _allRegValues)
             {
                 //display header
                 ShowHeader(enumPat);
 
                 //loop through all example strings and run it against each pattern.
-                for (int i = 0; i < exList.Count; i++)
+                for (int i = 0; i < _exList.Count; i++)
                 {
                     var recNo = ((i - 1) % 5);
                     if (i > 5 && recNo.Equals(0))
@@ -161,7 +199,7 @@ namespace Demo
                         ShowHeader(enumPat);
                     }
                     //display each
-                    DisplayMatch((i + 1), enumPat, exList[i]);
+                    DisplayMatch((i + 1), enumPat, _exList[i]);
                     //Console.WriteLine();
                 }
 
@@ -171,6 +209,33 @@ namespace Demo
             
             return false;
         }
+
+        static void RegExUnitTestArray(int i, RegexPatterns regPat, string str, bool matches)
+        {
+            //oddly enough, is printing out with "True" or "False", so we have to convert to string and lower case it for it to write compilable code.
+            var match1 = regPat.IsMatch(str).ToString().ToLower();
+            var newStr = regPat.Sanitize(str);
+            var match2 = regPat.IsMatch(newStr).ToString().ToLower();
+            var arrEle = string.Empty;
+
+            if (matches)
+            {
+                arrEle = $"new object[] {{ RegexPatterns.{regPat.Name()}, \"{str}\", {match1} }},";
+                if (!_matchPattern.Contains(arrEle))
+                    _matchPattern.Add(arrEle);
+
+                arrEle = $"new object[] {{ RegexPatterns.{regPat.Name()}, \"{newStr}\", {match2} }},";
+                if (!_matchPattern.Contains(arrEle))
+                    _matchPattern.Add(arrEle);
+            }
+            else
+            {
+                arrEle = $"new object[] {{ RegexPatterns.{regPat.Name()}, \"{str}\", \"{newStr}\" }},";
+                if (!_sanitizePattern.Contains(arrEle))
+                    _sanitizePattern.Add(arrEle);
+            }
+        }
+
         static void DisplayMatch(int i, RegexPatterns regPat, string str)
         {
             //run match
