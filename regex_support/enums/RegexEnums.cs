@@ -245,6 +245,14 @@
         Hex,
         /// <summary>
         /// <code>
+        /// Pattern: @"^((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})$"
+        /// Custom sanitation method added.  "15.55.1.66.156.22.44" will return "15.55.1.66"
+        /// </code>
+        /// </summary>
+        [RegexDefinition(@"^((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})$", @"[^0-9\.$]", "123.123.123.123", SanitizeStrategy.CustomMethod, "SanitizeIPv4Generic")]
+        IPv4,
+        /// <summary>
+        /// <code>
         /// Email Address Validation.
         /// NOTE: Domain names and their extensions can be 64 bytes between '.' and allowed to have '-' within them, but not start or end with them.
         ///       The root name "before the @" can have (-, %, +, and _), but can not start or end with them.

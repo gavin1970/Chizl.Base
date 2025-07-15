@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Chizl;
+using System;
 using System.Drawing;
-using System.Collections.Generic;
-using Chizl;
 using Chizl.RegexSupport;
 using Chizl.ConsoleSupport;
-using System.Runtime.CompilerServices;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Demo
 {
@@ -35,6 +35,7 @@ namespace Demo
         [
             "-Alpha_!1234 5Test.67", "-Alpha_!1234 5Test678.90",
             "~Alpha_!123-4 5Test.67", "~Alpha_!123-4 5Test6-78.90",
+            "!123-.1 5Test.67.a5", "~!123-.1 5Test.67.a1!123-.1 5Test.67.a5",
             "~Alpha_!($12,3)4 5Test,6-78.90", "~+1 Alpha_!(123) 45Test6-7.890",
             "~Alpha_!123-4 5-Test67.89", "~Alpha1-_!123-d45Test6-7.890",
             "A#h12C4D6", "#h12C#4D6", "#12CZ4D6",
@@ -44,13 +45,15 @@ namespace Demo
 
         static void Main(string[] args)
         {
-            //if (BuildTests())
-            //    return;
+            if (BuildTests())
+                return;
             if (ShowConsoleHlper())
                 return;
             if (ShowDefaults())
                 return;
             if (ShowSubString())
+                return;
+            if (ShowSetBoundary())
                 return;
             if (ShowRegexPatterns())
                 return;
@@ -95,6 +98,24 @@ namespace Demo
 
             return Finish().Equals(ConsoleKey.Escape);
         }
+        static bool ShowSetBoundary()
+        {
+            DemoTitle("Example of SetBoundary().\nThis is a lot like Math.Clamp, but work in netstandard 2.0 and allows for rounding all in one call.");
+
+            double dbl = 100.51556;
+            Console.WriteLine($"Setting value: {dbl}");
+            dbl = dbl.SetBoundary(1.0, 100.0, 6);
+            Console.WriteLine($"New Value: {dbl} - dbl.SetBoundary(1.0, 100.0, 6); - this is because max is 100.0.");
+            dbl = 88.51556;
+            Console.WriteLine($"Setting value: {dbl}");
+            dbl = dbl.SetBoundary(1.0, 100.0, 6);
+            Console.WriteLine($"Round down: {dbl} - dbl.SetBoundary(1.0, 100.0, 6); - this is because rounding internally is only 0-4, can't be 6.");
+            dbl = dbl.ClampTo(90.0, 100.0);
+            Console.WriteLine($"Round up: {dbl} - dbl.ClampTo(90.0, 100.0); - this is because min value is 90.0.\n" +
+                              $"This ClampTo() extension works in netstandard2.0-2.1, .net4.6-net9.0");
+
+            return Finish().Equals(ConsoleKey.Escape);
+        }
         static bool ShowSubString()
         {
             DemoTitle("Showing a more controled version of Substring.\nThis validates and correct obvious issues.\n\nAuto Fixes:\nIf startindex is less than 0:\n - startindex will be moved to 0.\nIf startindex + length is greater than string.length:\n - length will be audo adjusted length to get rest of string.");
@@ -116,24 +137,13 @@ namespace Demo
                 Console.WriteLine($"alphabet.SubstringEx({i}, {size}) = {test}");
             }
 
-            Console.WriteLine($"{(new string('-', 30))}\n");
-
-            double dbl = 100.51556;
-            Console.WriteLine($"Setting value: {dbl}");
-            dbl = dbl.SetBoundary(1.0, 100.0, 6);
-            Console.WriteLine($"New Value: {dbl} - dbl.SetBoundary(1.0, 100.0, 6); - this is because max is 100.0.");
-            dbl = 88.51556;
-            Console.WriteLine($"Setting value: {dbl}");
-            dbl = dbl.SetBoundary(1.0, 100.0, 6);
-            Console.WriteLine($"Round down: {dbl} - dbl.SetBoundary(1.0, 100.0, 6); - this is because rounding internally is only 0-4, can't be 6.");
-            dbl = dbl.ClampTo(90.0, 100.0);
-            Console.WriteLine($"Round up: {dbl} - dbl.ClampTo(90.0, 100.0); - this is because min value is 90.0.\n" +
-                              $"This ClampTo() extension works in netstandard2.0-2.1, .net4.6-net9.0");
-
             return Finish().Equals(ConsoleKey.Escape);
         }
         static bool BuildTests()
         {
+            if (Prompt("Do you want to build unit tests for Regex Patterns right now?", new ConsoleKey[] { ConsoleKey.Y, ConsoleKey.N }) == ConsoleKey.N)
+                return false;
+
             bool[] bools = [true, false];
             // I want the tests grouped
             foreach (var b in bools) 
@@ -178,8 +188,10 @@ namespace Demo
             if (Finish().Equals(ConsoleKey.Escape))
                 return true;
 
+
             DemoTitle($"Showing all `{_allRegValues.Length}` Regex Patterns against `{_exList.Count}` dummy strings.");
 
+            var loopWaitCnt = (int)(_exList.Count / 3);
             //loop through Enum RegexPatterns
             foreach (RegexPatterns enumPat in _allRegValues)
             {
@@ -189,8 +201,8 @@ namespace Demo
                 //loop through all example strings and run it against each pattern.
                 for (int i = 0; i < _exList.Count; i++)
                 {
-                    var recNo = ((i - 1) % 5);
-                    if (i > 5 && recNo.Equals(0))
+                    var recNo = ((i - 1) % loopWaitCnt);
+                    if (i > 1 && recNo.Equals(0))
                     {
                         if (Finish().Equals(ConsoleKey.Escape))
                             return true;
@@ -209,7 +221,6 @@ namespace Demo
             
             return false;
         }
-
         static void RegExUnitTestArray(int i, RegexPatterns regPat, string str, bool matches)
         {
             //oddly enough, is printing out with "True" or "False", so we have to convert to string and lower case it for it to write compilable code.
@@ -235,7 +246,6 @@ namespace Demo
                     _sanitizePattern.Add(arrEle);
             }
         }
-
         static void DisplayMatch(int i, RegexPatterns regPat, string str)
         {
             //run match
@@ -279,18 +289,43 @@ namespace Demo
             Console.WriteLine($"Example(s)      : {eNum.GetInfo(RegexPatternType.Examples, false)}");
             Console.WriteLine(new string('-', name.Length - _len));
         }
+        static ConsoleKey Prompt(string msg, ConsoleKey[] validKeys)
+        {
+            var key = ConsoleKey.ExSel;
+
+            Console.WriteLine(msg);
+            if (validKeys != null && validKeys.Length > 0)
+            {
+                while (!validKeys.Contains(key))
+                    key = Console.ReadKey(true).Key;
+            }
+            else
+                key = Console.ReadKey(true).Key;
+
+            return key;
+        }
         static ConsoleKey Finish()
         {
-            Console.WriteLine("\nPress 'Esc' to exit.  Press any other key to continue.");
-            var key = Console.ReadKey(true).Key;
-            ConsoleHelper.ResetConsoleBuffer();
+            var key = Prompt("\nPress 'Esc' to exit.  Press any other key to continue.", null);
+            ClearScreen();
             return key;
         }
         static void DemoTitle(string title)
         {
-            Console.Clear();
-            var bar = new string('=', title.Length);
-            Console.WriteLine($"{bar}\n{title}\n{bar}\n");
+            ClearScreen();
+            var vTitle = title.Split('\n');
+            var maxLen = 0;
+            foreach (var v in vTitle)
+                maxLen = Math.Max(v.Length, maxLen);
+
+            var bar = new string('=', maxLen);
+
+            Console.WriteLine(bar);
+            foreach (var v in vTitle) 
+                Console.WriteLine(v);
+            Console.WriteLine(bar);
         }
+
+static void ClearScreen() => ConsoleHelper.ResetConsoleBuffer();
     }
 }

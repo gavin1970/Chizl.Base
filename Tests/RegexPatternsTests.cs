@@ -228,6 +228,27 @@ namespace Chizl.Base.Tests
                 new object[] { RegexPatterns.Hex, "#h12C#4D6", false },
                 new object[] { RegexPatterns.Hex, "#12C4D6", true },
                 new object[] { RegexPatterns.Hex, "#12CZ4D6", false },
+                new object[] { RegexPatterns.IPv4, "-Alpha_!1234 5Test.67", false },
+                new object[] { RegexPatterns.IPv4, "12345.67", false },
+                new object[] { RegexPatterns.IPv4, "-Alpha_!1234 5Test678.90", false },
+                new object[] { RegexPatterns.IPv4, "12345678.90", false },
+                new object[] { RegexPatterns.IPv4, "~Alpha_!123-4 5Test.67", false },
+                new object[] { RegexPatterns.IPv4, "~Alpha_!123-4 5Test6-78.90", false },
+                new object[] { RegexPatterns.IPv4, "!123-.1 5Test.67.a5", false },
+                new object[] { RegexPatterns.IPv4, "123.15.67.5", true },
+                new object[] { RegexPatterns.IPv4, "~!123-.1 5Test.67.a1!123-.1 5Test.67.a5", false },
+                new object[] { RegexPatterns.IPv4, "123.15.67.112", true },
+                new object[] { RegexPatterns.IPv4, "~Alpha_!($12,3)4 5Test,6-78.90", false },
+                new object[] { RegexPatterns.IPv4, "$12345678.90", false },
+                new object[] { RegexPatterns.IPv4, "~+1 Alpha_!(123) 45Test6-7.890", false },
+                new object[] { RegexPatterns.IPv4, "11234567.890", false },
+                new object[] { RegexPatterns.IPv4, "~Alpha_!123-4 5-Test67.89", false },
+                new object[] { RegexPatterns.IPv4, "1234567.89", false },
+                new object[] { RegexPatterns.IPv4, "~Alpha1-_!123-d45Test6-7.890", false },
+                new object[] { RegexPatterns.IPv4, "A#h12C4D6", false },
+                new object[] { RegexPatterns.IPv4, "1246", false },
+                new object[] { RegexPatterns.IPv4, "#h12C#4D6", false },
+                new object[] { RegexPatterns.IPv4, "#12CZ4D6", false },
             ];
 
         public static IEnumerable<object[]> SanitizeData =>
@@ -364,7 +385,20 @@ namespace Chizl.Base.Tests
                 new object[] { RegexPatterns.Hex, "A#h12C4D6", "A12C4D6" },
                 new object[] { RegexPatterns.Hex, "#h12C#4D6", "#12C4D6" },
                 new object[] { RegexPatterns.Hex, "#12CZ4D6", "#12C4D6" },
-            ];
+                new object[] { RegexPatterns.IPv4, "-Alpha_!1234 5Test.67", "12345.67" },
+                new object[] { RegexPatterns.IPv4, "-Alpha_!1234 5Test678.90", "12345678.90" },
+                new object[] { RegexPatterns.IPv4, "~Alpha_!123-4 5Test.67", "12345.67" },
+                new object[] { RegexPatterns.IPv4, "~Alpha_!123-4 5Test6-78.90", "12345678.90" },
+                new object[] { RegexPatterns.IPv4, "!123-.1 5Test.67.a5", "123.15.67.5" },
+                new object[] { RegexPatterns.IPv4, "~!123-.1 5Test.67.a1!123-.1 5Test.67.a5", "123.15.67.112" },
+                new object[] { RegexPatterns.IPv4, "~Alpha_!($12,3)4 5Test,6-78.90", "$12345678.90" },
+                new object[] { RegexPatterns.IPv4, "~+1 Alpha_!(123) 45Test6-7.890", "11234567.890" },
+                new object[] { RegexPatterns.IPv4, "~Alpha_!123-4 5-Test67.89", "1234567.89" },
+                new object[] { RegexPatterns.IPv4, "~Alpha1-_!123-d45Test6-7.890", "11234567.890" },
+                new object[] { RegexPatterns.IPv4, "A#h12C4D6", "1246" },
+                new object[] { RegexPatterns.IPv4, "#h12C#4D6", "1246" },
+                new object[] { RegexPatterns.IPv4, "#12CZ4D6", "1246" },
+        ];
 
         [Theory]
         [MemberData(nameof(MatchData))]
