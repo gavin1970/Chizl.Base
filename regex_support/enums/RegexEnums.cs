@@ -259,10 +259,12 @@
         /// Remove:  @[^A-Za-z0-9!@#\$\-%&\*] - Keeps alpha (upper/lower) numeric and the following special characters "! @ # $ - % & *".
         /// -------
         /// ^                   : Asserts the start of the string.
-        /// [A-Za-z]            : This ensures the password starts with an alphabet (uppercase or lowercase).
-        /// (?=.*[0-9])         : This lookahead asserts that there must be at least one digit (0-9) anywhere in the string.
-        /// (?=.*[^a-zA-Z0-9\s]): This lookahead asserts that there must be at least one special character (any character that is not an alphanumeric or whitespace).
-        /// .{7,15}             : Since the first character is already matched by ^[A-Za-z], the remaining characters need to be between 7 and 15 to meet the total length requirement of 8 to 16 characters.
+        /// (?=.*[a-z])         : Positive lookahead to ensure at least one lowercase letter exists anywhere in the string.
+        /// (?=.*[A-Z])         : Positive lookahead to ensure at least one uppercase letter exists anywhere in the string.
+        /// (?=.*[0-9])         : (Already there) Ensures at least one numeric character.
+        /// (?=.*[^a-zA-Z0-9\s]): (Already there) Ensures at least one special character.
+        /// [A-Za-z]            : Ensures the string starts with an alphabetic character (as per your original requirement).
+        /// .{7,15}             : Matches any character (except newline) between 7 and 15 times.
         /// $                   : Asserts the end of the string.
         /// </code>
         /// </summary>
