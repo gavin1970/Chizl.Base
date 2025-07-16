@@ -16,7 +16,7 @@ namespace Chizl.RegexSupport
             => CommonParts(input, pattern, replaceWith, "#", null);
 
         /// <summary>
-        /// Custom sanitizer method for Hex
+        /// Custom sanitizer method for Decimal
         /// </summary>
         /// <param name="input">input string to clean</param>
         /// <param name="pattern">regex pattern, required for possible future custom methods, that require it.</param>
@@ -26,7 +26,17 @@ namespace Chizl.RegexSupport
             => CommonParts(input, pattern, replaceWith, "-", (new char[] { '.' }));
 
         /// <summary>
-        /// Custom sanitizer method for Hex
+        /// Custom sanitizer method for Email
+        /// </summary>
+        /// <param name="input">input string to clean</param>
+        /// <param name="pattern">regex pattern, required for possible future custom methods, that require it.</param>
+        /// <param name="replaceWith">regex replacement char.</param>
+        /// <returns>cleaned string</returns>
+        public static string SanitizeEmailGeneric(string input, string pattern, string replaceWith) 
+            => CommonParts(input, pattern, replaceWith, string.Empty, new char[] { '@' });
+
+        /// <summary>
+        /// Custom sanitizer method for Money
         /// </summary>
         /// <param name="input">input string to clean</param>
         /// <param name="pattern">regex pattern, required for possible future custom methods, that require it.</param>
@@ -137,7 +147,9 @@ namespace Chizl.RegexSupport
             }
 
             // Then, remove special char if it's not the first character
-            if (sanitized.StartsWith(allowedStarter))
+            if (string.IsNullOrWhiteSpace(allowedStarter))
+                return sanitized;
+            else if (sanitized.StartsWith(allowedStarter))
                 return allowedStarter + sanitized.Substring(1).Replace(allowedStarter, replaceWith);
             else
                 return sanitized.Replace(allowedStarter, replaceWith);

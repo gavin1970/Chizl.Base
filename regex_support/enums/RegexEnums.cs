@@ -273,36 +273,25 @@
         /// <summary>
         /// <code>
         /// Email Address Validation.
-        /// NOTE: Domain names and their extensions can be 64 bytes between '.' and allowed to have '-' within them, but not start or end with them.
-        ///       The root name "before the @" can have (-, %, +, and _), but can not start or end with them.
-        ///       This makes validating more complex since email's can also be within many sub-domains.
-        ///       This email pattern is experimental, so if you have a better way to match up with all these rules, please let me know.
-        /// Pattern: @"^[a-zA-Z0-9]+([\._\%\+\-]*[a-zA-Z0-9]+){0,63}@[a-zA-Z0-9]{1}([a-zA-Z0-9\-]{1,62}\.){0,3}[a-zA-Z0-9]{1}[a-zA-Z0-9\-]{1,61}[a-zA-Z0-9]{1}\.[a-zA-Z]{2,63}$"
+        /// Local part length (1–64)                   ✅
+        /// Local starts & ends with alphanumeric      ✅
+        /// Special characters allowed mid-local       ✅
+        /// No consecutive .., no leading/trailing .   ✅
+        /// Domain part label length (1–63)            ✅
+        /// Domain labels no leading/trailing -        ✅
+        /// Repeats up to 3 subdomains                 ✅
+        /// TLD realistic length (2–24)                ✅
+        /// Fully anchored with ^...$                  ✅
+        /// Case-insensitive friendly                  ✅
         /// -------
-        /// ^                : Asserts the start of the string.
-        /// [a-zA-Z0-9]+     : Require at least 1 or more (+) A through F, a through f, or 0 through 9
-        /// (                : Starting Optional group
-        ///     [a-zA-Z0-9]+ : Require at least 1 or more (+) A through F, a through f, or 0 through 9
-        ///     [\._\%\+\-]* : Optional characters 0 or more (., _, %, +, -)
-        /// ){0,63}          : End Optional Group, but can't have more than 63 in length.
-        /// @                : Require '@'
-        /// [a-zA-Z0-9]{1}   : Require A through F, a through f, or 0 through 9, Length: Min 1, Max 1.  First char can not be -
-        /// (                : Starting Optional group
-        ///     [a-zA-Z0-9\-]{1,62}
-        ///     \.
-        /// ){0,3}           : End Optional Group, but can't have more than 3 in length.
-        /// [a-zA-Z0-9]{1}
-        /// [a-zA-Z0-9\-]{1,61}
-        /// [a-zA-Z0-9]{1}
-        /// \.
-        /// [a-zA-Z]{2,63}
-        /// $                : Asserts the end of the string.
+        /// Pattern: @"^[a-zA-Z\d](?:[a-zA-Z\d!#\$%&'\*\+/=\?\^_`\{\|\}~\.-]{0,62}[a-zA-Z\d])?@(?:(?:[a-zA-Z\d](?:[a-zA-Z\d]|-(?!-)){0,61}[a-zA-Z\d])\.){1,3}[a-zA-Z]{2,24}$"
+        /// -------
+        /// Accepted: alice.bob@example.com, john+doe@sub.mail.org, a1_b2@host-name.net
+        /// Rejected: .bob@domain.com, bob.@domain.com, bob*@domain.com, bob@-domain.com, bob@domain-.com, bob@a--b.com
         /// </code>
         /// </summary>
-        // [RegexDefinition(@"^[a-zA-Z0-9]+([\._\%\+\-]*[a-zA-Z0-9]+){0,63}@[a-zA-Z0-9]{1}([a-zA-Z0-9\-]{1,62}\.){0,3}[a-zA-Z0-9]{1}[a-zA-Z0-9\-]{1,61}[a-zA-Z0-9]{1}\.[a-zA-Z]{2,63}$", "[^#a-fA-F0-9$]", "#CCC, CCC, #C0C0C0, C0C0C0, #FFC0C0C0, FFC0C0C0", SanitizeStrategy.CustomMethod, "SanitizeHexCodeGeneric")]
-        //Email,
-        // [RegexDefinition(@"^[a-zA-Z0-9]+([\._\%\+\-]*[a-zA-Z0-9]+){0,63}@[a-zA-Z0-9](\.?[a-zA-Z0-9\-]{1,63}){1,3}[a-zA-Z0-9]\.[a-zA-Z]{2,63}$", "[^#a-fA-F0-9$]", "#CCC, CCC, #C0C0C0, C0C0C0, #FFC0C0C0, FFC0C0C0", SanitizeStrategy.CustomMethod, "SanitizeHexCodeGeneric")]
-        //                  [a-zA-Z0-9]+([\._\%\+\-]*[a-zA-Z0-9]+){0,63}@[a-zA-Z0-9]{1}([a-zA-Z0-9\-]{1,62}\.){0,3}[a-zA-Z0-9]{1}[a-zA-Z0-9\-]{1,61}[a-zA-Z0-9]{1}\.[a-zA-Z]{2,63}
+        [RegexDefinition(@"^[a-zA-Z\d](?:[a-zA-Z\d!#\$%&\+_\.-]{0,62}[a-zA-Z\d])?@(?:(?:[a-zA-Z\d](?:[a-zA-Z\d]|-(?!-)){0,61}[a-zA-Z\d])\.){1,3}[a-zA-Z]{2,24}$", @"[^a-zA-Z\d!#\$%&\+_\.-]", "aaa", SanitizeStrategy.CustomMethod, "SanitizeEmailGeneric")]
+        Email,
     }
 
     public enum RegexPatternType

@@ -35,7 +35,8 @@ namespace Demo
         [
             "Alpha_!1234 5Test.67", "-Alpha_!1234 5Test678.90",
             "~Alpha_!123-4 5Test.67", "Alpha_!123-4 5Test6-78.90",
-            "a!123-.1 5Test.67.a5", "~!123-.1 5Test.67.a1!123-.1 5Test.67.a5",
+            "a!123-.1 5@Test.67.a5", "~!123-.1 5Test.67.a1!123-.1 5Test.67.a5",
+            "Aza!123+bbb@Test.cc.aa",
             "~Alpha_!($12,3)4 5Test,6-78.90", "~+1 Alpha_!(123) 45Test6-7.890",
             "~Alpha_!123-4 5-Test67.89", "~Alpha1-_!123-d45Test6-7.890",
             "A#h12C4D6", "#h12C#4D6", "#12CZ4D6",
@@ -162,9 +163,7 @@ namespace Demo
 
                 var arrUsed = b ? _matchPattern : _sanitizePattern;
                 foreach(var s in arrUsed)
-                {
                     Console.WriteLine(s);
-                }
 
                 if (Finish().Equals(ConsoleKey.Escape))
                     return true;
@@ -227,23 +226,49 @@ namespace Demo
             var match1 = regPat.IsMatch(str).ToString().ToLower();
             var newStr = regPat.Sanitize(str);
             var match2 = regPat.IsMatch(newStr).ToString().ToLower();
+            var allowInsert = true;
+            var allowInsert2 = true;
             var arrEle = string.Empty;
+
+            var foundPat = (matches ? _matchPattern : _sanitizePattern).Where(w => w.Contains($".{regPat.Name()},"));
 
             if (matches)
             {
-                arrEle = $"new object[] {{ RegexPatterns.{regPat.Name()}, \"{str}\", {match1} }},";
-                if (!_matchPattern.Contains(arrEle))
-                    _matchPattern.Add(arrEle);
+                //if patterns already saved
+                if (foundPat.Count() > 0)
+                {
+                    //if less than 2 success for this pattern, add it.  If less than 2 fails, add it.
+                    allowInsert = foundPat.Where(w => w.Contains($", {match1} ")).Count() < 2;
+                    //if not same string after conversion or response came back differently, verify
+                    if (!str.Equals(newStr) || !match1.Equals(match2))
+                        //if less than 2 success for this pattern, add it.  If less than 2 fails, add it.
+                        allowInsert2 = foundPat.Where(w => w.Contains($", {match2} ")).Count() < 2;
+                    else
+                        allowInsert2 = false;
+                }
 
-                arrEle = $"new object[] {{ RegexPatterns.{regPat.Name()}, \"{newStr}\", {match2} }},";
-                if (!_matchPattern.Contains(arrEle))
-                    _matchPattern.Add(arrEle);
+                if (allowInsert)
+                {
+                    arrEle = $"new object[] {{ RegexPatterns.{regPat.Name()}, \"{str}\", {match1} }},";
+                    if (!_matchPattern.Contains(arrEle))
+                        _matchPattern.Add(arrEle);
+                }
+
+                if (allowInsert2)
+                {
+                    arrEle = $"new object[] {{ RegexPatterns.{regPat.Name()}, \"{newStr}\", {match2} }},";
+                    if (!_matchPattern.Contains(arrEle))
+                        _matchPattern.Add(arrEle);
+                }
             }
             else
             {
-                arrEle = $"new object[] {{ RegexPatterns.{regPat.Name()}, \"{str}\", \"{newStr}\" }},";
-                if (!_sanitizePattern.Contains(arrEle))
-                    _sanitizePattern.Add(arrEle);
+                if (foundPat.Count() < 4)
+                {
+                    arrEle = $"new object[] {{ RegexPatterns.{regPat.Name()}, \"{str}\", \"{newStr}\" }},";
+                    if (!_sanitizePattern.Contains(arrEle))
+                        _sanitizePattern.Add(arrEle);
+                }
             }
         }
         static void DisplayMatch(int i, RegexPatterns regPat, string str)
