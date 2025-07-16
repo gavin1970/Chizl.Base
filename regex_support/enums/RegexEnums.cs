@@ -253,6 +253,23 @@
         IPv4,
         /// <summary>
         /// <code>
+        /// Description: Regex pattern that requires a minimum length of 8, a maximum length of 16. 
+        ///              Must include at least one uppercase alpha, one lowercase alpha, one numeric character, and one special character:
+        /// Pattern: @"^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9\s])[A-Za-z].{7,15}$"
+        /// Remove:  @[^A-Za-z0-9!@#\$\-%&\*] - Keeps alpha (upper/lower) numeric and the following special characters "! @ # $ - % & *".
+        /// -------
+        /// ^                   : Asserts the start of the string.
+        /// [A-Za-z]            : This ensures the password starts with an alphabet (uppercase or lowercase).
+        /// (?=.*[0-9])         : This lookahead asserts that there must be at least one digit (0-9) anywhere in the string.
+        /// (?=.*[^a-zA-Z0-9\s]): This lookahead asserts that there must be at least one special character (any character that is not an alphanumeric or whitespace).
+        /// .{7,15}             : Since the first character is already matched by ^[A-Za-z], the remaining characters need to be between 7 and 15 to meet the total length requirement of 8 to 16 characters.
+        /// $                   : Asserts the end of the string.
+        /// </code>
+        /// </summary>
+        [RegexDefinition(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9\s])[A-Za-z].{7,15}$", @"[^A-Za-z0-9!@#\$\-%&\*]", "F96#NtSe-Pe-N6d1, Cre4@6GT, yE@40fr35*Tespa!")]
+        Password8v16,
+        /// <summary>
+        /// <code>
         /// Email Address Validation.
         /// NOTE: Domain names and their extensions can be 64 bytes between '.' and allowed to have '-' within them, but not start or end with them.
         ///       The root name "before the @" can have (-, %, +, and _), but can not start or end with them.

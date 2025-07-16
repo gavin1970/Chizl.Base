@@ -249,7 +249,30 @@ namespace Chizl.Base.Tests
                 new object[] { RegexPatterns.IPv4, "1246", false },
                 new object[] { RegexPatterns.IPv4, "#h12C#4D6", false },
                 new object[] { RegexPatterns.IPv4, "#12CZ4D6", false },
-            ];
+                new object[] { RegexPatterns.Password8v16, "Alpha_!1234 5Test.67", false },
+                new object[] { RegexPatterns.Password8v16, "Alpha!12345Test67", false },
+                new object[] { RegexPatterns.Password8v16, "-Alpha_!1234 5Test678.90", false },
+                new object[] { RegexPatterns.Password8v16, "-Alpha!12345Test67890", false },
+                new object[] { RegexPatterns.Password8v16, "~Alpha_!123-4 5Test.67", false },
+                new object[] { RegexPatterns.Password8v16, "Alpha!123-45Test67", false },
+                new object[] { RegexPatterns.Password8v16, "Alpha_!123-4 5Test6-78.90", false },
+                new object[] { RegexPatterns.Password8v16, "Alpha!123-45Test6-7890", false },
+                new object[] { RegexPatterns.Password8v16, "a!123-.1 5Test.67.a5", false },
+                new object[] { RegexPatterns.Password8v16, "a!123-15Test67a5", true },
+                new object[] { RegexPatterns.Password8v16, "~!123-.1 5Test.67.a1!123-.1 5Test.67.a5", false },
+                new object[] { RegexPatterns.Password8v16, "!123-15Test67a1!123-15Test67a5", false },
+                new object[] { RegexPatterns.Password8v16, "~Alpha_!($12,3)4 5Test,6-78.90", false },
+                new object[] { RegexPatterns.Password8v16, "Alpha!$12345Test6-7890", false },
+                new object[] { RegexPatterns.Password8v16, "~+1 Alpha_!(123) 45Test6-7.890", false },
+                new object[] { RegexPatterns.Password8v16, "1Alpha!12345Test6-7890", false },
+                new object[] { RegexPatterns.Password8v16, "~Alpha_!123-4 5-Test67.89", false },
+                new object[] { RegexPatterns.Password8v16, "Alpha!123-45-Test6789", false },
+                new object[] { RegexPatterns.Password8v16, "~Alpha1-_!123-d45Test6-7.890", false },
+                new object[] { RegexPatterns.Password8v16, "Alpha1-!123-d45Test6-7890", false },
+                new object[] { RegexPatterns.Password8v16, "A#h12C4D6", true },
+                new object[] { RegexPatterns.Password8v16, "#h12C#4D6", false },
+                new object[] { RegexPatterns.Password8v16, "#12CZ4D6", false },
+        ];
 
         public static IEnumerable<object[]> SanitizeData =>
             [
@@ -398,6 +421,19 @@ namespace Chizl.Base.Tests
                 new object[] { RegexPatterns.IPv4, "A#h12C4D6", "1246" },
                 new object[] { RegexPatterns.IPv4, "#h12C#4D6", "1246" },
                 new object[] { RegexPatterns.IPv4, "#12CZ4D6", "1246" },
+                new object[] { RegexPatterns.Password8v16, "Alpha_!1234 5Test.67", "Alpha!12345Test67" },
+                new object[] { RegexPatterns.Password8v16, "-Alpha_!1234 5Test678.90", "-Alpha!12345Test67890" },
+                new object[] { RegexPatterns.Password8v16, "~Alpha_!123-4 5Test.67", "Alpha!123-45Test67" },
+                new object[] { RegexPatterns.Password8v16, "Alpha_!123-4 5Test6-78.90", "Alpha!123-45Test6-7890" },
+                new object[] { RegexPatterns.Password8v16, "a!123-.1 5Test.67.a5", "a!123-15Test67a5" },
+                new object[] { RegexPatterns.Password8v16, "~!123-.1 5Test.67.a1!123-.1 5Test.67.a5", "!123-15Test67a1!123-15Test67a5" },
+                new object[] { RegexPatterns.Password8v16, "~Alpha_!($12,3)4 5Test,6-78.90", "Alpha!$12345Test6-7890" },
+                new object[] { RegexPatterns.Password8v16, "~+1 Alpha_!(123) 45Test6-7.890", "1Alpha!12345Test6-7890" },
+                new object[] { RegexPatterns.Password8v16, "~Alpha_!123-4 5-Test67.89", "Alpha!123-45-Test6789" },
+                new object[] { RegexPatterns.Password8v16, "~Alpha1-_!123-d45Test6-7.890", "Alpha1-!123-d45Test6-7890" },
+                new object[] { RegexPatterns.Password8v16, "A#h12C4D6", "A#h12C4D6" },
+                new object[] { RegexPatterns.Password8v16, "#h12C#4D6", "#h12C#4D6" },
+                new object[] { RegexPatterns.Password8v16, "#12CZ4D6", "#12CZ4D6" },
         ];
 
         [Theory]

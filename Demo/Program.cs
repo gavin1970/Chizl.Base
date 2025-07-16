@@ -33,9 +33,9 @@ namespace Demo
         //dummy data
         static readonly List<string> _exList =
         [
-            "-Alpha_!1234 5Test.67", "-Alpha_!1234 5Test678.90",
-            "~Alpha_!123-4 5Test.67", "~Alpha_!123-4 5Test6-78.90",
-            "!123-.1 5Test.67.a5", "~!123-.1 5Test.67.a1!123-.1 5Test.67.a5",
+            "Alpha_!1234 5Test.67", "-Alpha_!1234 5Test678.90",
+            "~Alpha_!123-4 5Test.67", "Alpha_!123-4 5Test6-78.90",
+            "a!123-.1 5Test.67.a5", "~!123-.1 5Test.67.a1!123-.1 5Test.67.a5",
             "~Alpha_!($12,3)4 5Test,6-78.90", "~+1 Alpha_!(123) 45Test6-7.890",
             "~Alpha_!123-4 5-Test67.89", "~Alpha1-_!123-d45Test6-7.890",
             "A#h12C4D6", "#h12C#4D6", "#12CZ4D6",
