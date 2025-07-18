@@ -10,15 +10,13 @@
 
 		<PropertyGroup>
 				<Authors>Chizl</Authors>
-				<Description>
-						Used as a base library for generic extentions and methods, usese mostly for other Chizl libraries.
-				</Description>
+				<Description>Used as a base library with generic extentions and methods to be used across other libraries an/or applications.</Description>
 				<PackageId>Chizl</PackageId>
 				<Company>Chizl.com</Company>
 				<Copyright>© 2025 chizl.com</Copyright>
-				<PackageTags>base-library,netstandard2.0,netstandard2.1</PackageTags>
-				<FileVersion>5.07.16.2145</FileVersion>
-				<Version>5.07.16.0</Version>
+				<PackageTags>base-library,netstandard2.0,netstandard2.1,dependency-free</PackageTags>
+				<FileVersion>5.07.18.1243</FileVersion>
+				<Version>5.07.18.0</Version>
 				<AssemblyVersion>5.07.0.0</AssemblyVersion>
 		</PropertyGroup>
 
@@ -29,10 +27,6 @@
 		  <EmbeddedResource Remove="Tests\**" />
 		  <None Remove="Demo\**" />
 		  <None Remove="Tests\**" />
-		</ItemGroup>
-
-		<ItemGroup>
-		  <Folder Include="console_support\services\" />
 		</ItemGroup>
 
 </Project>

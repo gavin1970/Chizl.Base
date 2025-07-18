@@ -1,10 +1,10 @@
-﻿using Chizl;
-using System;
-using System.Drawing;
-using Chizl.RegexSupport;
-using Chizl.ConsoleSupport;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
+using System.Drawing;
+using System.Collections.Generic;
+using Chizl.Extensions;
+using Chizl.ConsoleSupport;
+using Chizl.RegexSupport;
 
 namespace Demo
 {
@@ -111,7 +111,7 @@ namespace Demo
             Console.WriteLine($"Setting value: {dbl}");
             dbl = dbl.SetBoundary(1.0, 100.0, 6);
             Console.WriteLine($"Round down: {dbl} - dbl.SetBoundary(1.0, 100.0, 6); - this is because rounding internally is only 0-4, can't be 6.");
-            dbl = dbl.ClampTo(90.0, 100.0);
+            dbl = dbl.Clamp(90.0, 100.0);
             Console.WriteLine($"Round up: {dbl} - dbl.ClampTo(90.0, 100.0); - this is because min value is 90.0.\n" +
                               $"This ClampTo() extension works in netstandard2.0-2.1, .net4.6-net9.0");
 

@@ -1,4 +1,4 @@
-﻿namespace Chizl.Base.Utils
+﻿namespace Chizl.ConsoleSupport
 {
     internal enum AsciiColorType
     {

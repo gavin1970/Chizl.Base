@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Chizl.Extensions;
 using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 

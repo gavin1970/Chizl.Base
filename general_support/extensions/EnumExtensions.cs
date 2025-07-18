@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Chizl
+namespace Chizl.Extensions
 {
     public static class EnumExtensions
     {

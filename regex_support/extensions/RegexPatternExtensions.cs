@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using Chizl.Extensions;
 
 namespace Chizl.RegexSupport
 {

@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
-using Chizl.Base.Utils;
+using Chizl.ConsoleSupport;
 
-namespace Chizl.ConsoleSupport
+namespace Chizl.Extensions
 {
     public static class ColorExtensions
     {

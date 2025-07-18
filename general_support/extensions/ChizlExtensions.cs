@@ -1,33 +1,13 @@
 ﻿using System;
-using System.Linq;
-using Chizl.Base.Utils;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 
-namespace Chizl
+namespace Chizl.Extensions
 {
     public static class ChizlExtensions
     {
-        #region Private Arrays
-        private static readonly HashSet<Type> _validBoundaryTypes = new HashSet<Type>
-        {
-            typeof(byte),
-            typeof(short),     // Int16
-            typeof(int),       // Int32
-            typeof(long),      // Int64
-            typeof(float),     // Single
-            typeof(double),    // Double
-            typeof(decimal)    // Decimal
-        };
+        private static readonly ConcurrentDictionary<Type, object> _defaultTypeCache = new ConcurrentDictionary<Type, object>();
 
-        private static readonly HashSet<Type> _decimalTypes = new HashSet<Type>
-        {
-            typeof(float),     // Single
-            typeof(double),    // Double
-            typeof(decimal)    // Decimal
-        };
-        #endregion
-
-        #region Public Methods
+        #region Public Extensions
         /// <summary>
         /// Gets a substring from this instance. The substring starts at a specified character position and has a specified length.<br/>
         /// This method uses modern C# range operators (`..`) on supported frameworks (.NET Standard 2.1+, .NET 6+) 
@@ -83,68 +63,48 @@ namespace Chizl
 #endif
         }
         /// <summary>
-        /// Finds and generates the default value based on Type
+        /// Finds and generates the default value based on Type.<br/>
+        /// NOTE: This call caches the response so the next type this specific type is looked up, it's already in memory.
         /// </summary>
         /// <param name="t"></param>
         /// <returns>Default value based on Type</returns>
-        public static object GetDefaultValue(this Type t) => Common.GetDefault(t);
-        #endregion
+        public static object GetDefaultValue(this Type t) => GetDefault(t);
 
-        /// <summary>
-        /// Responds with numeric value passed in after forcing value to be within range given from Min to Max.<br/>
-        /// If less than Min, Min will be the set value.<br/>
-        /// If more than Max, Max will be the set value.
-        /// </summary>
-        /// <param name="min">Minimum value allowed</param>
-        /// <param name="max">Maximum value allowed</param>
-        /// <param name="decCount">(Range (0-4): Rounds to specific decimal.<br/>
-        /// If the decCount value isn't passed in, is less than 0, or more than 4: Default: 0)</param>
-        /// <returns>value forced within range.</returns>
-        public static T SetBoundary<T>(this T value, T min, T max, byte decCount = 0) where T : IComparable<T>
-        {
-            if (!IsSupportedNumeric<T>())
-                throw new NotSupportedException($"{typeof(T).Name} is not a supported numeric type.");
-
-            //if this return type doesn't have decimal values, and decCount is greater than 0, set to 0;
-            if (decCount > 0 && _decimalTypes.Where(w => w.Name.Equals(typeof(T).Name)).Count().Equals(0))
-                decCount = 0;
-
-            //validate decimal count based on response type.
-            var dec = decCount.ClampTo<byte>(0, 4);
-            //set range value
-            var retVal = (value.CompareTo(min) < 0) ? min : (value.CompareTo(max) > 0) ? max : value;
-
-            //convert to double for rounding, even if Int.  If Int, dec would of been forced to 0.
-            //It will be removed later, but required for Math.Round() to be a decimal type value.
-            //this allows for function to be generic across all _validBoundaryTypes
-            var conv = (double)Convert.ChangeType(retVal, typeof(double));
-
-            //validate min and max and round if necessary.
-            return (T)Convert.ChangeType(Math.Round(conv, dec), typeof(T));
-        }
-        /// <summary>
-        /// Since netstandard2.0 doesn't have Math.Clamp, this will do in.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="value"></param>
-        /// <param name="min"></param>
-        /// <param name="max"></param>
-        /// <returns></returns>
-        public static T ClampTo<T>(this T value, T min, T max)
-            where T : IComparable<T>
-        {
-            if (value.CompareTo(min) < 0) return min;
-            if (value.CompareTo(max) > 0) return max;
-            return value;
-        }
         /// <summary>
         /// For some reason, MS didn't put a Guid.IsEmpty property, but has a Guid.Empty static property.  This fixed that.
         /// </summary>
         /// <returns>true: Guid was created with Guid.Empty static property.  false: Guid was initialized properly.</returns>
         public static bool IsEmpty(this Guid guid) => guid == Guid.Empty;
+        #endregion
 
-        #region Private Helper Methods
-        private static bool IsSupportedNumeric<T>() => _validBoundaryTypes.Contains(typeof(T));
+        #region Private Helpers
+        /// <summary>
+        /// Takes the Type and pulls it from cache, unless it's not there, then pulls it from instance.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        private static object GetDefault(Type type)
+        {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            return _defaultTypeCache.GetOrAdd(type, GetDefaultValueInternal);
+        }
+        /// <summary>
+        /// If wasn't found in cache and if it has a value type, an instances is created to pull default value.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        private static object GetDefaultValueInternal(Type type)
+        {
+            // Handle value types directly
+            if (type.IsValueType)
+                return Activator.CreateInstance(type); // or FormatterServices.GetUninitializedObject
+
+            // Handle reference types
+            return null;
+        }
         #endregion
     }
 }

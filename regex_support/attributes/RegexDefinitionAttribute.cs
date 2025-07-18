@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chizl.Extensions;
+using System;
 
 namespace Chizl.RegexSupport
 {
