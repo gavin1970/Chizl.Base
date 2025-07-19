@@ -59,7 +59,7 @@ namespace Demo
                 return;
             if (ShowSubString())
                 return;
-            if (ShowSetBoundary())
+            if (ShowClamp())
                 return;
             if (ShowRegexPatterns())
                 return;
@@ -104,18 +104,18 @@ namespace Demo
 
             return Finish().Equals(ConsoleKey.Escape);
         }
-        static bool ShowSetBoundary()
+        static bool ShowClamp()
         {
-            DemoTitle("Example of SetBoundary().\nThis is a lot like Math.Clamp, but work in netstandard 2.0 and allows for rounding all in one call.");
+            DemoTitle("Example of Clamp().\nThis is a lot like Math.Clamp, but work in netstandard 2.0 and allows for rounding all in one call.");
 
             double dbl = 100.51556;
             Console.WriteLine($"Setting value: {dbl}");
-            dbl = dbl.SetBoundary(1.0, 100.0, 6);
-            Console.WriteLine($"New Value: {dbl} - dbl.SetBoundary(1.0, 100.0, 6); - this is because max is 100.0.");
+            dbl = dbl.Clamp(1.0, 100.0, 6);
+            Console.WriteLine($"New Value: {dbl} - dbl.Clamp(1.0, 100.0, 6); - this is because max is 100.0.");
             dbl = 88.51556;
             Console.WriteLine($"Setting value: {dbl}");
-            dbl = dbl.SetBoundary(1.0, 100.0, 6);
-            Console.WriteLine($"Round down: {dbl} - dbl.SetBoundary(1.0, 100.0, 6); - this is because rounding internally is only 0-4, can't be 6.");
+            dbl = dbl.Clamp(1.0, 100.0, 6);
+            Console.WriteLine($"Round down: {dbl} - dbl.Clamp(1.0, 100.0, 6); - this is because rounding internally is only 0-4, can't be 6.");
             dbl = dbl.Clamp(90.0, 100.0);
             Console.WriteLine($"Round up: {dbl} - dbl.ClampTo(90.0, 100.0); - this is because min value is 90.0.\n" +
                               $"This ClampTo() extension works in netstandard2.0-2.1, .net4.6-net9.0");
