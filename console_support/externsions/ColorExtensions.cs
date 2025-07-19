@@ -7,7 +7,7 @@ namespace Chizl.Extensions
     {
         /// <summary>
         /// Returns the Ascii Escape characters for Foreground color within a Console.Window.<br/>
-        /// Color.<any>.Reset() will clear all foreground and background console colors.
+        /// Color.<any>.ResetAscii() will clear all foreground and background console colors.
         /// </summary>
         /// <returns>Ascii Escape characters</returns>
         public static string FGAscii(this Color @this) => GetAsciiEscape(@this, true);

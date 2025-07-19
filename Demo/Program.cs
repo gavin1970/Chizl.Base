@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using Chizl.Extensions;
 using Chizl.ConsoleSupport;
 using Chizl.RegexSupport;
+using Chizl.ThreadSupport;
+using System.Threading;
 
 namespace Demo
 {
@@ -19,9 +21,12 @@ namespace Demo
         static readonly string _background = Color.FromArgb(48, 48, 48).BGAscii();
         static readonly string _null = $"{_fail}null{_reset}";
         static readonly int _len = $"{_success}{_reset}".Length;
+        static readonly Array _allRegValues = Enum.GetValues(typeof(RegexPatterns));
+
         //help prevent duplicates in the test array.
-        static List<string> _matchPattern = new List<string>();
-        static List<string> _sanitizePattern = new List<string>();
+        static readonly List<string> _matchPattern = new List<string>();
+        static readonly List<string> _sanitizePattern = new List<string>();
+        static readonly Guid _inThread = Guid.NewGuid();
 
         //demo types
         static readonly List<Type> _typeList = 
@@ -42,12 +47,12 @@ namespace Demo
             "A#h12C4D6", "#h12C#4D6", "#12CZ4D6",
         ];
 
-        static Array _allRegValues = Enum.GetValues(typeof(RegexPatterns));
-
         static void Main(string[] args)
         {
-            if (BuildTests())
+            if (ShowThreadLock())
                 return;
+            //if (BuildTests())
+            //    return;
             if (ShowConsoleHlper())
                 return;
             if (ShowDefaults())
@@ -115,6 +120,35 @@ namespace Demo
             Console.WriteLine($"Round up: {dbl} - dbl.ClampTo(90.0, 100.0); - this is because min value is 90.0.\n" +
                               $"This ClampTo() extension works in netstandard2.0-2.1, .net4.6-net9.0");
 
+            return Finish().Equals(ConsoleKey.Escape);
+        }
+        static bool ShowThreadLock()
+        {
+            ClearScreen();
+            //Example #1
+            var thread1 = new Thread(new ThreadStart(() => { ThreadTest(TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2)); return; }));
+            thread1.Start();
+
+            //cycle the thread.  Without this, thread3 might start before thread1, just as an example.
+            Thread.Sleep(1);
+
+            //Example #2
+            var thread2 = new Thread(new ThreadStart(() => { ThreadTest(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10)); return; }));
+            thread2.Start();
+
+            //cycle the thread.  Without this, thread3 might start before thread1, just as an example.
+            Thread.Sleep(1);
+
+            //Example #3
+            var thread3 = new Thread(new ThreadStart(() => { ThreadTest(TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(7)); return; }));
+            thread3.Start();
+
+            //cycle the thread.  Without this, thread3 might start before thread1, just as an example.
+            Thread.Sleep(1);
+
+            while (thread1.IsAlive || thread2.IsAlive || thread3.IsAlive) Thread.Sleep(100);
+
+            Console.WriteLine("All threads have stopped...");
             return Finish().Equals(ConsoleKey.Escape);
         }
         static bool ShowSubString()
@@ -350,7 +384,41 @@ namespace Demo
                 Console.WriteLine(v);
             Console.WriteLine(bar);
         }
+        static void ThreadTest(TimeSpan simulatedWorkDuration, TimeSpan lockTimeout)
+        {
+            var threadId = Thread.CurrentThread.ManagedThreadId;
+            var requestTime = DateTime.Now;
 
-static void ClearScreen() => ConsoleHelper.ResetConsoleBuffer();
+            Console.WriteLine($"\n***************************\n" +
+                              $"{threadId}: Start ThreadTest({simulatedWorkDuration})\n" +
+                              $"{threadId}: Lock requested at {requestTime:HH:mm:ss.fffffff}");
+
+            DateTime lockAcquiredAt;
+            bool lockAcquired;
+
+            using (var lockHandle = TLock.Acquire(_inThread, new TLockOptions(lockTimeout)))
+            {
+                lockAcquiredAt = DateTime.Now;
+                lockAcquired = lockHandle.Acquired;
+
+                if (lockAcquired)
+                {
+                    Console.WriteLine($"{threadId}: Lock acquired at {lockAcquiredAt:HH:mm:ss.fffffff}");
+                    Thread.Sleep(simulatedWorkDuration);
+                }
+                else
+                {
+                    Console.WriteLine($"{threadId}: Failed to acquire lock (timed out) at {lockAcquiredAt:HH:mm:ss.fffffff}");
+                }
+            }
+
+            var waited = lockAcquiredAt - requestTime;
+
+            Console.WriteLine($"{threadId}: Waited for: {waited.TotalMilliseconds:N0} ms (Expected max: {lockTimeout.TotalMilliseconds:N0} ms)");
+            Console.WriteLine($"{threadId}: Ended at: {DateTime.Now:HH:mm:ss.fffffff}");
+            Console.WriteLine($"{threadId}: Exiting ThreadTest({simulatedWorkDuration})\n***************************\n");
+        }
+
+        static void ClearScreen() => ConsoleHelper.ResetConsoleBuffer();
     }
 }

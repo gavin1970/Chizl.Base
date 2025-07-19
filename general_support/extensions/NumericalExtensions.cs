@@ -26,39 +26,6 @@ namespace Chizl.Extensions
         };
 
         /// <summary>
-        /// Responds with numeric value passed in after forcing value to be within range given from Min to Max.<br/>
-        /// If less than Min, Min will be the set value.<br/>
-        /// If more than Max, Max will be the set value.
-        /// </summary>
-        /// <param name="min">Minimum value allowed</param>
-        /// <param name="max">Maximum value allowed</param>
-        /// <param name="decCount">(Range (0-4): Rounds to specific decimal.<br/>
-        /// If the decCount value isn't passed in, is less than 0, or more than 4: Default: 0)</param>
-        /// <returns>value forced within range.</returns>
-        public static T SetBoundary<T>(this T value, T min, T max, byte decCount = 0) where T : IComparable<T>
-        {
-            if (!IsSupportedNumeric<T>())
-                throw new NotSupportedException($"{typeof(T).Name} is not a supported numeric type.");
-
-            //if this return type doesn't have decimal values, and decCount is greater than 0, set to 0;
-            if (decCount > 0 && _decimalTypes.Where(w => w.Name.Equals(typeof(T).Name)).Count().Equals(0))
-                decCount = 0;
-
-            //validate decimal count based on response type.
-            var dec = decCount.Clamp<byte>(0, 4);
-            //set range value
-            var retVal = (value.CompareTo(min) < 0) ? min : (value.CompareTo(max) > 0) ? max : value;
-
-            //convert to double for rounding, even if Int.  If Int, dec would of been forced to 0.
-            //It will be removed later, but required for Math.Round() to be a decimal type value.
-            //this allows for function to be generic across all _validBoundaryTypes
-            var conv = (double)Convert.ChangeType(retVal, typeof(double));
-
-            //validate min and max and round if necessary.
-            return (T)Convert.ChangeType(Math.Round(conv, dec), typeof(T));
-        }
-
-        /// <summary>
         /// Since netstandard2.0 doesn't have Math.Clamp, this will work for all library versions.<br/>
         /// <code>
         /// Supported Numerical Types:
@@ -83,17 +50,40 @@ namespace Chizl.Extensions
         /// <typeparam name="T">Numerical Type</typeparam>
         /// <param name="min">Min Value, must be same type as evaluated</param>
         /// <param name="max">Max Value, must be same type as evaluated</param>
+        /// <param name="decCount">(Range (0-6): Rounds to specific decimal.<br/>
         /// <returns>Same numeric type within min and max range.</returns>
-        public static T Clamp<T>(this T value, T min, T max)
+        public static T Clamp<T>(this T value, T min, T max, byte decPoint = 0) 
             where T : IComparable<T>
         {
             if (!IsSupportedNumeric<T>())
                 throw new NotSupportedException($"{typeof(T).Name} is not a supported numeric type.");
 
-            if (value.CompareTo(min) < 0) return min;
-            if (value.CompareTo(max) > 0) return max;
-            return value;
+            var isDecimalType = _decimalTypes.Where(w => w.Name.Equals(typeof(T).Name)).Count()>0;
+            //if this return type doesn't have decimal values, and decPoint is greater than 0, set to 0;
+            if (decPoint > 0 && !isDecimalType)
+                decPoint = 0;
+            else
+            {
+                //check decimal size, max at 6 decimal point value
+                if (decPoint.CompareTo(0) < 0) decPoint = 0;
+                if (decPoint.CompareTo(6) > 0) decPoint = 6;
+            }
+
+            //set range value
+            if (value.CompareTo(min) < 0) value = min;
+            if (value.CompareTo(max) > 0) value = max;
+
+            //if it's not a deciaml type like double, float, or decimal, then return validated value
+            if (!isDecimalType)
+                return value;
+
+            //convert to double for rounding, then change on return to expected decimal type
+            var conv = (double)Convert.ChangeType(value, typeof(double));
+
+            //validate min and max and round if necessary.
+            return (T)Convert.ChangeType(Math.Round(conv, decPoint), typeof(T));
         }
+
         private static bool IsSupportedNumeric<T>() => _validBoundaryTypes.Contains(typeof(T));
     }
 }

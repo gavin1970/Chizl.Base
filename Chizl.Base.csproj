@@ -15,8 +15,8 @@
 				<Company>Chizl.com</Company>
 				<Copyright>© 2025 chizl.com</Copyright>
 				<PackageTags>base-library,netstandard2.0,netstandard2.1,dependency-free</PackageTags>
-				<FileVersion>5.07.18.1243</FileVersion>
-				<Version>5.07.18.0</Version>
+				<FileVersion>5.07.19.1729</FileVersion>
+				<Version>5.07.19.0</Version>
 				<AssemblyVersion>5.07.0.0</AssemblyVersion>
 		</PropertyGroup>
 
