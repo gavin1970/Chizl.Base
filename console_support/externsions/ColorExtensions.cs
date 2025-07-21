@@ -26,6 +26,9 @@ namespace Chizl.Extensions
         #region Private Support Methods
         private static string GetAsciiEscape(Color clr, bool isForeground)
         {
+            //if there is no color, return empty..
+            if (clr == null || clr.IsEmpty || clr.Equals(Color.Transparent))
+                return "";
             //Get code for Foreground or Background based on selection.
             var present = isForeground ? AsciiColorType.FGClr : AsciiColorType.BGClr;
             //Display it all using 24bit, because 4, 8, and 16 bit color exists in the 24bit layer.

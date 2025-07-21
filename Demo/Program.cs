@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Drawing;
-using System.Collections.Generic;
+using System.Threading;
 using Chizl.Extensions;
-using Chizl.ConsoleSupport;
 using Chizl.RegexSupport;
 using Chizl.ThreadSupport;
-using System.Threading;
+using Chizl.ConsoleSupport;
+using System.Collections.Generic;
 
 namespace Demo
 {
@@ -14,19 +14,33 @@ namespace Demo
     {
         const string _replaceWith = " ";
         static readonly string _reset = ConsoleHelper.GetColorReset;
-        static readonly string _values = Color.FromArgb(192, 192, 0).FGAscii();
-        static readonly string _success = Color.LawnGreen.FGAscii();
-        static readonly string _fail = Color.FromArgb(255, 128, 128).FGAscii();
-        static readonly string _function = Color.FromArgb(255, 255, 0).FGAscii();
-        static readonly string _background = Color.FromArgb(48, 48, 48).BGAscii();
-        static readonly string _null = $"{_fail}null{_reset}";
-        static readonly int _len = $"{_success}{_reset}".Length;
+        static readonly Color _values = Color.FromArgb(192, 192, 0);
+        static readonly string _valuesStr = _values.FGAscii();
+
+        static readonly Color _success = Color.LawnGreen;
+        static readonly string _successStr = _success.FGAscii();
+
+        static readonly Color _fail = Color.FromArgb(255, 128, 128);
+        static readonly string _failStr = _fail.FGAscii();
+
+        static readonly Color _function = Color.FromArgb(255, 255, 0);
+        static readonly string _functionStr = _function.FGAscii();
+
+        static readonly Color _background = Color.FromArgb(48, 48, 48);
+        static readonly string _backgroundStr = _background.BGAscii();
+
+        static readonly Color _titleColor = Color.Yellow;
+        static readonly string _titleColorStr = _titleColor.FGAscii();
+
+        static readonly string _null = $"{_failStr}null{_reset}";
+        static readonly int _len = $"{_successStr}{_reset}".Length;
         static readonly Array _allRegValues = Enum.GetValues(typeof(RegexPatterns));
 
         //help prevent duplicates in the test array.
         static readonly List<string> _matchPattern = new List<string>();
         static readonly List<string> _sanitizePattern = new List<string>();
         static readonly Guid _inThread = Guid.NewGuid();
+        static readonly CBox _cBox = new CBox(new CBoxOptions(CBoxBorderType.RlDoubleTbSingle, Color.Gold, Color.Silver, Color.Empty));
 
         //demo types
         static readonly List<Type> _typeList = 
@@ -125,6 +139,11 @@ namespace Demo
         static bool ShowThreadLock()
         {
             ClearScreen();
+
+            //$"\n***************************\n" +
+            DemoTitle($"Three threads will be started.  Each thread will show a ThreadID at the start. When all\n" +
+                       "threads have started and TLock has expired or completed, a final message will be seen.");
+
             //Example #1
             var thread1 = new Thread(new ThreadStart(() => { ThreadTest(TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2)); return; }));
             thread1.Start();
@@ -148,7 +167,7 @@ namespace Demo
 
             while (thread1.IsAlive || thread2.IsAlive || thread3.IsAlive) Thread.Sleep(100);
 
-            Console.WriteLine("All threads have stopped...");
+            _cBox.Show("All threads have stopped...");
             return Finish().Equals(ConsoleKey.Escape);
         }
         static bool ShowSubString()
@@ -310,18 +329,18 @@ namespace Demo
             //run match
             var match = regPat.IsMatch(str);
             //set color based on match
-            var fgClr = match ? _success : _fail;
+            var fgClr = match ? _successStr : _failStr;
 
             //run match on original data
             Console.WriteLine($"{i}: IsMatch(\"{str}\") -> {fgClr}{match}{_reset}");
 
             //option 1, default replace with is "".
             var newStr = regPat.Sanitize(str);
-            Console.WriteLine($"{i}: {_function}Sanitize{_reset}(\"{_values}{str}{_reset}\") -> >>{_values}{newStr}{_reset}<<");
+            Console.WriteLine($"{i}: {_functionStr}Sanitize{_reset}(\"{_valuesStr}{str}{_reset}\") -> >>{_valuesStr}{newStr}{_reset}<<");
             //run match
             match = regPat.IsMatch(newStr);
             //set color based on match
-            fgClr = match ? _success : _fail;
+            fgClr = match ? _successStr : _failStr;
             Console.WriteLine($"{i}: IsMatch(\"{newStr}\") -> {fgClr}{match}{_reset}");
 
             //show Replace with 2 args and replace all invalid with space " ".
@@ -329,17 +348,17 @@ namespace Demo
             {
                 //option 2, change default to replace with "X"
                 var newStr2 = regPat.Sanitize(str, _replaceWith);
-                Console.WriteLine($"{i}: {_function}Sanitize{_reset}(\"{_values}{str}{_reset}\", \"{_background}{_replaceWith}{_reset}\") -> >>{_background}{newStr2}{_reset}<<");
+                Console.WriteLine($"{i}: {_functionStr}Sanitize{_reset}(\"{_valuesStr}{str}{_reset}\", \"{_backgroundStr}{_replaceWith}{_reset}\") -> >>{_backgroundStr}{newStr2}{_reset}<<");
                 //run match
                 match = regPat.IsMatch(newStr2);
                 //set color based on match
-                fgClr = match ? _success : _fail;
+                fgClr = match ? _successStr : _failStr;
                 Console.WriteLine($"{i}: IsMatch(\"{newStr2}\") -> {fgClr}{match}{_reset}");
             }
         }
         static void ShowHeader(RegexPatterns eNum)
         {
-            var name = $"------======[ {_success}{eNum.Name()}{_reset} ]======------";
+            var name = $"------======[ {_successStr}{eNum.Name()}{_reset} ]======------";
             Console.WriteLine(name);
             Console.WriteLine($"Match Pattern   : {eNum.GetInfo(RegexPatternType.Match, false)}");
             Console.WriteLine($"Sanitize Pattern: {eNum.GetInfo(RegexPatternType.Sanitize, false)}");
@@ -372,26 +391,16 @@ namespace Demo
         static void DemoTitle(string title)
         {
             ClearScreen();
-            var vTitle = title.Split('\n');
-            var maxLen = 0;
-            foreach (var v in vTitle)
-                maxLen = Math.Max(v.Length, maxLen);
-
-            var bar = new string('=', maxLen);
-
-            Console.WriteLine(bar);
-            foreach (var v in vTitle) 
-                Console.WriteLine(v);
-            Console.WriteLine(bar);
+            _cBox.Show(title, _titleColor);
         }
         static void ThreadTest(TimeSpan simulatedWorkDuration, TimeSpan lockTimeout)
         {
             var threadId = Thread.CurrentThread.ManagedThreadId;
             var requestTime = DateTime.Now;
 
-            Console.WriteLine($"\n***************************\n" +
-                              $"{threadId}: Start ThreadTest({simulatedWorkDuration})\n" +
-                              $"{threadId}: Lock requested at {requestTime:HH:mm:ss.fffffff}");
+            //$"\n***************************\n" +
+            _cBox.Show($"{threadId}: Start ThreadTest({simulatedWorkDuration})\n" +
+                      $"{threadId}: Lock requested at {requestTime:HH:mm:ss.fffffff}");
 
             DateTime lockAcquiredAt;
             bool lockAcquired;
@@ -403,20 +412,20 @@ namespace Demo
 
                 if (lockAcquired)
                 {
-                    Console.WriteLine($"{threadId}: Lock acquired at {lockAcquiredAt:HH:mm:ss.fffffff}");
+                    _cBox.Show($"{threadId}: Lock acquired at {lockAcquiredAt:HH:mm:ss.fffffff}", Color.White);
                     Thread.Sleep(simulatedWorkDuration);
                 }
                 else
                 {
-                    Console.WriteLine($"{threadId}: Failed to acquire lock (timed out) at {lockAcquiredAt:HH:mm:ss.fffffff}");
+                    _cBox.Show($"{threadId}: Failed to acquire lock (timed out) at {lockAcquiredAt:HH:mm:ss.fffffff}", Color.FromArgb(255, 128, 128));
                 }
             }
 
             var waited = lockAcquiredAt - requestTime;
 
-            Console.WriteLine($"{threadId}: Waited for: {waited.TotalMilliseconds:N0} ms (Expected max: {lockTimeout.TotalMilliseconds:N0} ms)");
-            Console.WriteLine($"{threadId}: Ended at: {DateTime.Now:HH:mm:ss.fffffff}");
-            Console.WriteLine($"{threadId}: Exiting ThreadTest({simulatedWorkDuration})\n***************************\n");
+            _cBox.Show($"{threadId}: Waited for: {waited.TotalMilliseconds:N0} ms (Expected max: {lockTimeout.TotalMilliseconds:N0} ms)\n" +
+                      $"{threadId}: Ended at: {DateTime.Now:HH:mm:ss.fffffff}\n" +
+                      $"{threadId}: Exiting ThreadTest({simulatedWorkDuration})", Color.MediumAquamarine);
         }
 
         static void ClearScreen() => ConsoleHelper.ResetConsoleBuffer();
