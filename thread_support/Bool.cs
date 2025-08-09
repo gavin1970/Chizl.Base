@@ -51,8 +51,8 @@ namespace Chizl.ThreadSupport
         /// <code>
         /// var prevBool = _myVar.SetFalse();
         /// or
-        /// if (!_myVar.SetFalse())
-        ///     Console.WriteLine($"Previous value was false, but now set to {_myVar}.");
+        /// if (_myVar.SetFalse())
+        ///     Console.WriteLine($"Previous value was true, but now set to {_myVar}.");
         /// </code>
         /// </summary>
         /// <param name="boolValue">New Boolean value.</param>
