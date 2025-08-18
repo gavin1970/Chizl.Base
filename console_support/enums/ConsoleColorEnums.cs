@@ -1,5 +1,45 @@
 ﻿namespace Chizl.ConsoleSupport
 {
+    public enum CBoxBorderType
+    {
+        /// <summary>
+        /// No borders
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// Thin Single: ┌, ┐, └, ┘, ─, │
+        /// </summary>
+        ThinSingle,
+        /// <summary>
+        /// Thick Single: ┏, ┓, ┗, ┛, ━, ┃
+        /// </summary>
+        ThickSingle,
+        /// <summary>
+        /// Double - "╔, ╗, ╚, ╝, ═, ║
+        /// </summary>
+        AllDouble,
+        /// <summary>
+        /// Single, Double: ╒, ╕, ╘, ╛, ═, │
+        /// </summary>
+        RlSingleTbDouble,
+        /// <summary>
+        /// Double, Single: ╓, ╖, ╙, ╜, ─, ║
+        /// </summary>
+        RlDoubleTbSingle,
+        /// <summary>
+        /// Light Solid: ░ - all
+        /// </summary>
+        LightSolid,
+        /// <summary>
+        /// Medium Solid: ▒ - all
+        /// </summary>
+        MediumSolid,
+        /// <summary>
+        /// Hard Solid: ▓ - all
+        /// </summary>
+        HardSolid,
+    }
+
     internal enum AsciiColorType
     {
         /// <summary>

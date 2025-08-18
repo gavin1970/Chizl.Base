@@ -13,30 +13,6 @@ namespace Chizl.ConsoleSupport
         const int tbBar = 4;
         const int lrBar = 5;
 
-        private readonly static List<string[]> _borderTypes = new List<string[]>()
-        {
-            // In the works1
-            // "╔","╗","╚","╝","═","║","╠","╣","╦","╩","╬"
-
-            //None
-            new string[] { "","","","","","" },
-            //Thin Single
-            new string[] { "┌","┐","└","┘","─","│" },
-            //Thick Single
-            new string[] { "┏","┓","┗","┛","━","┃" },
-            //Double - special chars - ╠, ╣, ╦, ╩, ╬ (future)
-            new string[] { "╔","╗","╚","╝","═","║" },
-            //Single, Double
-            new string[] { "╒","╕","╘","╛","═","│" },
-            //Double, Single
-            new string[] { "╓","╖","╙","╜","─","║" },
-            //Light Solid
-            new string[] { "░", "░", "░", "░", "░", "░" },
-            //Medium Solid
-            new string[] { "▒", "▒", "▒", "▒", "▒", "▒" },
-            //Hard Solid
-            new string[] { "▓", "▓", "▓", "▓", "▓", "▓" },
-        };
         private CBoxOptions() => IsEmpty = true;
         public CBoxOptions(CBoxBorderType borderType, Color borderColor, Color fgColor, Color bgColor)
         {
@@ -49,7 +25,7 @@ namespace Chizl.ConsoleSupport
             FgColorStr = fgColor.FGAscii();
             BgColorStr = bgColor.BGAscii();
 
-            AllBorders = _borderTypes[borderType.Value()];
+            AllBorders = Common.BorderTypes[borderType.Value()];
 
             TlCorner = AllBorders[tlCorner];
             TrCorner = AllBorders[trCorner];

@@ -7,6 +7,7 @@ using Chizl.RegexSupport;
 using Chizl.ThreadSupport;
 using Chizl.ConsoleSupport;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Demo
 {
@@ -141,33 +142,36 @@ namespace Demo
             ClearScreen();
 
             //$"\n***************************\n" +
-            DemoTitle($"Three threads will be started.  Each thread will show a ThreadID at the start. When all\n" +
-                       "threads have started and TLock has expired or completed, a final message will be seen.");
+            DemoTitle($"Three threads will be started.  Each task/thread will show a ThreadID at the start. When all\n" +
+                       "tasks/threads have started and TLock has expired or completed, a final message will be seen.");
 
+            var taskList = new List<Task>();
+
+            _cBox.Show("Starting Tasks first...", Color.Cyan);
+
+            //examples using Task.
             //Example #1
-            var thread1 = new Thread(new ThreadStart(() => { ThreadTest(TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2)); return; }));
-            thread1.Start();
-
-            //cycle the thread.  Without this, thread3 might start before thread1, just as an example.
-            Thread.Sleep(1);
-
+            taskList.Add(Task.Run(() => { ThreadTest(TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2), false); }));
             //Example #2
-            var thread2 = new Thread(new ThreadStart(() => { ThreadTest(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10)); return; }));
-            thread2.Start();
-
-            //cycle the thread.  Without this, thread3 might start before thread1, just as an example.
-            Thread.Sleep(1);
-
+            taskList.Add(Task.Run(async () => { await Task.Delay(500); ThreadTest(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10), false); }));
             //Example #3
-            var thread3 = new Thread(new ThreadStart(() => { ThreadTest(TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(7)); return; }));
-            thread3.Start();
+            taskList.Add(Task.Run(async () => { await Task.Delay(1000); ThreadTest(TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(7), false); }));
+            Task.WaitAll(taskList.ToArray());
 
-            //cycle the thread.  Without this, thread3 might start before thread1, just as an example.
-            Thread.Sleep(1);
+            _cBox.Show("Tasks have all stopped.\nNow Starting Threads...", Color.Cyan);
 
+            //Examples using Thread
+            //Example #4
+            var thread1 = new Thread(new ThreadStart(() => { ThreadTest(TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2)); return; }));
+            //Example #5
+            var thread2 = new Thread(new ThreadStart(() => { Thread.Sleep(500); ThreadTest(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10)); return; }));
+            //Example #6
+            var thread3 = new Thread(new ThreadStart(() => { Thread.Sleep(1000); ThreadTest(TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(7)); return; }));
+
+            thread1.Start(); thread2.Start(); thread3.Start();
             while (thread1.IsAlive || thread2.IsAlive || thread3.IsAlive) Thread.Sleep(100);
 
-            _cBox.Show("All threads have stopped...");
+            _cBox.Show("All threads have stopped...", Color.Cyan);
             return Finish().Equals(ConsoleKey.Escape);
         }
         static bool ShowSubString()
@@ -393,13 +397,14 @@ namespace Demo
             ClearScreen();
             _cBox.Show(title, _titleColor);
         }
-        static void ThreadTest(TimeSpan simulatedWorkDuration, TimeSpan lockTimeout)
+        static void ThreadTest(TimeSpan simulatedWorkDuration, TimeSpan lockTimeout, bool isThread = true)
         {
             var threadId = Thread.CurrentThread.ManagedThreadId;
             var requestTime = DateTime.Now;
+            var testName = $"{(isThread ? "Thread" : "Task")}-Test";
 
             //$"\n***************************\n" +
-            _cBox.Show($"{threadId}: Start ThreadTest({simulatedWorkDuration})\n" +
+            _cBox.Show($"{threadId}: Start {testName}({simulatedWorkDuration})\n" +
                       $"{threadId}: Lock requested at {requestTime:HH:mm:ss.fffffff}");
 
             DateTime lockAcquiredAt;
@@ -425,7 +430,7 @@ namespace Demo
 
             _cBox.Show($"{threadId}: Waited for: {waited.TotalMilliseconds:N0} ms (Expected max: {lockTimeout.TotalMilliseconds:N0} ms)\n" +
                       $"{threadId}: Ended at: {DateTime.Now:HH:mm:ss.fffffff}\n" +
-                      $"{threadId}: Exiting ThreadTest({simulatedWorkDuration})", Color.MediumAquamarine);
+                      $"{threadId}: Exiting {testName}({simulatedWorkDuration})", Color.MediumAquamarine);
         }
 
         static void ClearScreen() => ConsoleHelper.ResetConsoleBuffer();

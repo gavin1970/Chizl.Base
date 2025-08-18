@@ -1,21 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace Chizl.ConsoleSupport
 {
-    public enum CBoxBorderType
-    {
-        None = 0,
-        ThinSingle,
-        ThickSingle,
-        AllDouble,
-        RlSingleTbDouble,
-        RlDoubleTbSingle,
-        LightSolid,
-        MediumSolid,
-        HardSolid,
-    }
-
     public class CBox
     {
         static readonly string _reset = ConsoleHelper.GetColorReset;
@@ -24,6 +12,12 @@ namespace Chizl.ConsoleSupport
         private int _maxSize;
 
         #region Public Methods
+        /// <summary>
+        /// Builds a box around the console text you want to display.
+        /// </summary>
+        /// <param name="boxOptions"></param>
+        /// <param name="padCnt"></param>
+        /// <param name="maxSize"></param>
         public CBox(CBoxOptions boxOptions, int padCnt = 2, int maxSize = -1)
         {
             _boxOptions =boxOptions;
@@ -114,8 +108,11 @@ namespace Chizl.ConsoleSupport
             var rB = $"{borderColor}{boxOptions.RBorder}{_reset}";
             var bB = boxOptions.HasBorder ? $"{padding}{borderColor}{boxOptions.BlCorner}{new string(boxOptions.BBorder[0], maxLen)}{boxOptions.BrCorner}{_reset}" : "";
 
+            //using this array so all text can be written at the same time with one
+            //Console.WriteLine to not get cut into by another threads console.write().
+            var writeLines = new List<string>();
             if (boxOptions.HasBorder)
-                Console.WriteLine($"{tB}");
+                writeLines.Add(tB);
 
             if (boxOptions.HasBorder)
                 maxLen -= 1;
@@ -123,11 +120,13 @@ namespace Chizl.ConsoleSupport
             foreach (var line in multiLineStr)
             {
                 var addSpace = line.Length < maxLen ? new string(' ', maxLen - line.Length) : "";
-                Console.WriteLine($"{lB}{line}{addSpace}{rB}");
+                writeLines.Add($"{lB}{line}{addSpace}{rB}");
             }
 
-            if (boxOptions.HasBorder) 
-                Console.WriteLine($"{bB}");
+            if (boxOptions.HasBorder)
+                writeLines.Add(bB);
+
+            Console.WriteLine($"{string.Join("\n", writeLines.ToArray())}");
         }
         #endregion
 

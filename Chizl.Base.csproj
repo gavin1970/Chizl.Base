@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 		<PropertyGroup>
-				<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+				<TargetFrameworks>netstandard2.0;netstandard2.1;net8.0</TargetFrameworks>
 				<ImplicitUsings>disable</ImplicitUsings>
 				<Nullable>disable</Nullable>
 				<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
@@ -14,9 +14,9 @@
 				<PackageId>Chizl</PackageId>
 				<Company>Chizl.com</Company>
 				<Copyright>© 2025 chizl.com</Copyright>
-				<PackageTags>base-library,netstandard2.0,netstandard2.1,dependency-free</PackageTags>
-				<FileVersion>5.07.21.2309</FileVersion>
-				<Version>5.07.21.0</Version>
+				<PackageTags>base-library,netstandard2.0,netstandard2.1,net8.0;dependency-free</PackageTags>
+				<FileVersion>5.08.18.1622</FileVersion>
+				<Version>5.08.18.0</Version>
 				<AssemblyVersion>5.07.0.0</AssemblyVersion>
 		</PropertyGroup>
 

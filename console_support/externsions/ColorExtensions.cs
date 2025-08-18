@@ -27,7 +27,7 @@ namespace Chizl.Extensions
         private static string GetAsciiEscape(Color clr, bool isForeground)
         {
             //if there is no color, return empty..
-            if (clr == null || clr.IsEmpty || clr.Equals(Color.Transparent))
+            if (clr.IsEmpty || clr.Equals(Color.Transparent))
                 return "";
             //Get code for Foreground or Background based on selection.
             var present = isForeground ? AsciiColorType.FGClr : AsciiColorType.BGClr;
