@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Chizl.Extensions
 {
     public static class ChizlExtensions
     {
+        private static readonly List<TaskStatus> _activeStatus = new List<TaskStatus>() { TaskStatus.Running, TaskStatus.WaitingForActivation, TaskStatus.WaitingForChildrenToComplete, TaskStatus.WaitingToRun };
         private static readonly ConcurrentDictionary<Type, object> _defaultTypeCache = new ConcurrentDictionary<Type, object>();
 
         #region Public Extensions
@@ -64,17 +69,68 @@ namespace Chizl.Extensions
         }
         /// <summary>
         /// Finds and generates the default value based on Type.<br/>
-        /// NOTE: This call caches the response so the next type this specific type is looked up, it's already in memory.
+        /// NOTE: This call caches the response so the next time this specific type is looked up, it's already in memory.
         /// </summary>
         /// <param name="t"></param>
         /// <returns>Default value based on Type</returns>
         public static object GetDefaultValue(this Type t) => GetDefault(t);
-
         /// <summary>
         /// For some reason, MS didn't put a Guid.IsEmpty property, but has a Guid.Empty static property.  This fixed that.
         /// </summary>
         /// <returns>true: Guid was created with Guid.Empty static property.  false: Guid was initialized properly.</returns>
         public static bool IsEmpty(this Guid guid) => guid == Guid.Empty;
+        /// <summary>
+        /// Returns if a Thread is not Null and IsAlive.<br/>
+        /// ___________________
+        /// <code>
+        /// Thread myThread;<br/>
+        /// ...
+        /// if (!myThread.IsActive())<br/>
+        ///     //create new thread....
+        /// </code>
+        /// </summary>
+        public static bool IsActive(this Thread t) => t != null && t.IsAlive;
+        /// <summary>
+        /// Returns if a Thread is not Null and TaskStatus are one of these:<br/>
+        /// Running, WaitingForActivation, WaitingForChildrenToComplete, WaitingToRun<br/>
+        /// ___________________
+        /// <code>
+        /// Task myTask = Method();<br/>
+        /// ...
+        /// if (!myTask.IsActive())<br/>
+        ///     //create new Task....
+        /// </code>
+        /// </summary>
+        public static bool IsActive(this Task t) => t != null && _activeStatus.Contains(t.Status);
+        /// <summary>
+        /// Quick check for OS Type.  Not supported by net47.
+        /// <code>
+        /// bool isWindows = OSPlatform.Windows.IsOS();<br/>
+        /// bool isOSX = OSPlatform.OSX.IsOS();<br/>
+        /// bool isLinux = OSPlatform.Linux.IsOS();
+        /// </code>
+        /// </summary>
+        public static bool IsOS(this OSPlatform val) => RuntimeInformation.IsOSPlatform(val);
+        /// <summary>
+        /// Returns if Exception has value or not.<br/>
+        /// Will catch the following as Empty.<br/>
+        /// *... = new Exception("")<br/>
+        /// *... = new Exception(null)<br/>
+        /// *... = null
+        /// </summary>
+        /// <returns>true: if Exception is null, messing Exception Message, or an "Exception of type Exception".  Occurs when using 'new Exception(null)'.</returns>
+        public static Exception Empty(this Exception ex) => new Exception(null);
+        /// <summary>
+        /// Returns if Exception has value or not.<br/>
+        /// Will catch the following as Empty.<br/>
+        /// *... = new Exception("")<br/>
+        /// *... = new Exception(null)<br/>
+        /// *... = null
+        /// </summary>
+        /// <returns>true: if Exception is null, messing Exception Message, or an "Exception of type Exception".  Occurs when using 'new Exception(null)'.</returns>
+        public static bool IsEmpty(this Exception ex) => 
+            ex == null || string.IsNullOrWhiteSpace(ex?.Message) || 
+            ex.Message == "Exception of type 'System.Exception' was thrown.";
         #endregion
 
         #region Private Helpers

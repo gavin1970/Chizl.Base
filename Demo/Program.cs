@@ -64,6 +64,8 @@ namespace Demo
 
         static void Main(string[] args)
         {
+            if (ShowEmptyError())
+                return;
             if (ShowThreadLock())
                 return;
             //if (BuildTests())
@@ -80,6 +82,20 @@ namespace Demo
                 return;
         }
 
+        static bool ShowEmptyError()
+        {
+            DemoTitle($"Ever need to evaluate an Excepion object and have to check if it's null and if it has an error within?");
+
+            Exception ex = new Exception();
+            _cBox.Show($"Exception ex = new Exception();\n" +
+                       $"ex.IsEmpty: {ex.IsEmpty()}\n", Color.Aquamarine);
+
+            ex = new Exception("My Exception Message");
+            _cBox.Show($"ex = new Exception(\"My Exception Message\");\n" +
+                       $"ex.IsEmpty: {ex.IsEmpty()}", Color.Aquamarine);
+
+            return Finish().Equals(ConsoleKey.Escape);
+        }
         static bool ShowConsoleHlper()
         {
             DemoTitle("Showing Console Helper for setting 24 bit color within the console.");
@@ -139,9 +155,6 @@ namespace Demo
         }
         static bool ShowThreadLock()
         {
-            ClearScreen();
-
-            //$"\n***************************\n" +
             DemoTitle($"Three threads will be started.  Each task/thread will show a ThreadID at the start. When all\n" +
                        "tasks/threads have started and TLock has expired or completed, a final message will be seen.");
 
@@ -197,36 +210,6 @@ namespace Demo
 
             return Finish().Equals(ConsoleKey.Escape);
         }
-        static bool BuildTests()
-        {
-            if (Prompt("Do you want to build unit tests for Regex Patterns right now?", new ConsoleKey[] { ConsoleKey.Y, ConsoleKey.N }) == ConsoleKey.N)
-                return false;
-
-            bool[] bools = [true, false];
-            // I want the tests grouped
-            foreach (var b in bools) 
-            {
-                DemoTitle($"Creating UnitTests {(b?"Match":"Sanitize")} array for RegexPatterns.  Pattern Count: '{_allRegValues.Length}`,  Data Count: `{_exList.Count}`.");
-                //loop through Enum RegexPatterns
-                foreach (RegexPatterns enumPat in _allRegValues)
-                {
-                    //loop through all example strings and run it against each pattern.
-                    for (int i = 0; i < _exList.Count; i++)
-                    {
-                        //display each
-                        RegExUnitTestArray((i + 1), enumPat, _exList[i], b);
-                    }
-                }
-
-                var arrUsed = b ? _matchPattern : _sanitizePattern;
-                foreach(var s in arrUsed)
-                    Console.WriteLine(s);
-
-                if (Finish().Equals(ConsoleKey.Escape))
-                    return true;
-            }
-            return false;
-        }
         static bool ShowRegexPatterns()
         {
             DemoTitle("Demoing Hex IsMatch() and Sanitize() methods");
@@ -275,6 +258,114 @@ namespace Demo
                     return true;
             }
             
+            return false;
+        }
+        static void DisplayMatch(int i, RegexPatterns regPat, string str)
+        {
+            //run match
+            var match = regPat.IsMatch(str);
+            //set color based on match
+            var fgClr = match ? _successStr : _failStr;
+
+            //run match on original data
+            Console.WriteLine($"{i}: IsMatch(\"{str}\") -> {fgClr}{match}{_reset}");
+
+            //option 1, default replace with is "".
+            var newStr = regPat.Sanitize(str);
+            Console.WriteLine($"{i}: {_functionStr}Sanitize{_reset}(\"{_valuesStr}{str}{_reset}\") -> >>{_valuesStr}{newStr}{_reset}<<");
+            //run match
+            match = regPat.IsMatch(newStr);
+            //set color based on match
+            fgClr = match ? _successStr : _failStr;
+            Console.WriteLine($"{i}: IsMatch(\"{newStr}\") -> {fgClr}{match}{_reset}");
+
+            //show Replace with 2 args and replace all invalid with space " ".
+            if (regPat.Name().Contains("Alpha"))
+            {
+                //option 2, change default to replace with "X"
+                var newStr2 = regPat.Sanitize(str, _replaceWith);
+                Console.WriteLine($"{i}: {_functionStr}Sanitize{_reset}(\"{_valuesStr}{str}{_reset}\", \"{_backgroundStr}{_replaceWith}{_reset}\") -> >>{_backgroundStr}{newStr2}{_reset}<<");
+                //run match
+                match = regPat.IsMatch(newStr2);
+                //set color based on match
+                fgClr = match ? _successStr : _failStr;
+                Console.WriteLine($"{i}: IsMatch(\"{newStr2}\") -> {fgClr}{match}{_reset}");
+            }
+        }
+        static void ShowHeader(RegexPatterns eNum)
+        {
+            var name = $"------======[ {_successStr}{eNum.Name()}{_reset} ]======------";
+            Console.WriteLine(name);
+            Console.WriteLine($"Match Pattern   : {eNum.GetInfo(RegexPatternType.Match, false)}");
+            Console.WriteLine($"Sanitize Pattern: {eNum.GetInfo(RegexPatternType.Sanitize, false)}");
+            Console.WriteLine($"Strategy        : {eNum.GetInfo(RegexPatternType.SanitizeStrategy, false)}");
+            Console.WriteLine($"Custom Method   : {eNum.GetInfo(RegexPatternType.CustomMethodName, false)}");
+            Console.WriteLine($"Example(s)      : {eNum.GetInfo(RegexPatternType.Examples, false)}");
+            Console.WriteLine(new string('-', name.Length - _len));
+        }
+        static void ThreadTest(TimeSpan simulatedWorkDuration, TimeSpan lockTimeout, bool isThread = true)
+        {
+            var threadId = Thread.CurrentThread.ManagedThreadId;
+            var requestTime = DateTime.Now;
+            var testName = $"{(isThread ? "Thread" : "Task")}-Test";
+
+            //$"\n***************************\n" +
+            _cBox.Show($"{threadId}: Start {testName}({simulatedWorkDuration})\n" +
+                      $"{threadId}: Lock requested at {requestTime:HH:mm:ss.fffffff}");
+
+            DateTime lockAcquiredAt;
+            bool lockAcquired;
+
+            using (var lockHandle = TLock.Acquire(_inThread, new TLockOptions(lockTimeout)))
+            {
+                lockAcquiredAt = DateTime.Now;
+                lockAcquired = lockHandle.Acquired;
+
+                if (lockAcquired)
+                {
+                    _cBox.Show($"{threadId}: Lock acquired at {lockAcquiredAt:HH:mm:ss.fffffff}", Color.White);
+                    Thread.Sleep(simulatedWorkDuration);
+                }
+                else
+                {
+                    _cBox.Show($"{threadId}: Failed to acquire lock (timed out) at {lockAcquiredAt:HH:mm:ss.fffffff}", Color.FromArgb(255, 128, 128));
+                }
+            }
+
+            var waited = lockAcquiredAt - requestTime;
+
+            _cBox.Show($"{threadId}: Waited for: {waited.TotalMilliseconds:N0} ms (Expected max: {lockTimeout.TotalMilliseconds:N0} ms)\n" +
+                      $"{threadId}: Ended at: {DateTime.Now:HH:mm:ss.fffffff}\n" +
+                      $"{threadId}: Exiting {testName}({simulatedWorkDuration})", Color.MediumAquamarine);
+        }
+        static bool BuildTests()
+        {
+            if (Prompt("Do you want to build unit tests for Regex Patterns right now?", new ConsoleKey[] { ConsoleKey.Y, ConsoleKey.N }) == ConsoleKey.N)
+                return false;
+
+            bool[] bools = [true, false];
+            // I want the tests grouped
+            foreach (var b in bools)
+            {
+                DemoTitle($"Creating UnitTests {(b ? "Match" : "Sanitize")} array for RegexPatterns.  Pattern Count: '{_allRegValues.Length}`,  Data Count: `{_exList.Count}`.");
+                //loop through Enum RegexPatterns
+                foreach (RegexPatterns enumPat in _allRegValues)
+                {
+                    //loop through all example strings and run it against each pattern.
+                    for (int i = 0; i < _exList.Count; i++)
+                    {
+                        //display each
+                        RegExUnitTestArray((i + 1), enumPat, _exList[i], b);
+                    }
+                }
+
+                var arrUsed = b ? _matchPattern : _sanitizePattern;
+                foreach (var s in arrUsed)
+                    Console.WriteLine(s);
+
+                if (Finish().Equals(ConsoleKey.Escape))
+                    return true;
+            }
             return false;
         }
         static void RegExUnitTestArray(int i, RegexPatterns regPat, string str, bool matches)
@@ -328,48 +419,11 @@ namespace Demo
                 }
             }
         }
-        static void DisplayMatch(int i, RegexPatterns regPat, string str)
+
+        static void DemoTitle(string title)
         {
-            //run match
-            var match = regPat.IsMatch(str);
-            //set color based on match
-            var fgClr = match ? _successStr : _failStr;
-
-            //run match on original data
-            Console.WriteLine($"{i}: IsMatch(\"{str}\") -> {fgClr}{match}{_reset}");
-
-            //option 1, default replace with is "".
-            var newStr = regPat.Sanitize(str);
-            Console.WriteLine($"{i}: {_functionStr}Sanitize{_reset}(\"{_valuesStr}{str}{_reset}\") -> >>{_valuesStr}{newStr}{_reset}<<");
-            //run match
-            match = regPat.IsMatch(newStr);
-            //set color based on match
-            fgClr = match ? _successStr : _failStr;
-            Console.WriteLine($"{i}: IsMatch(\"{newStr}\") -> {fgClr}{match}{_reset}");
-
-            //show Replace with 2 args and replace all invalid with space " ".
-            if (regPat.Name().Contains("Alpha"))
-            {
-                //option 2, change default to replace with "X"
-                var newStr2 = regPat.Sanitize(str, _replaceWith);
-                Console.WriteLine($"{i}: {_functionStr}Sanitize{_reset}(\"{_valuesStr}{str}{_reset}\", \"{_backgroundStr}{_replaceWith}{_reset}\") -> >>{_backgroundStr}{newStr2}{_reset}<<");
-                //run match
-                match = regPat.IsMatch(newStr2);
-                //set color based on match
-                fgClr = match ? _successStr : _failStr;
-                Console.WriteLine($"{i}: IsMatch(\"{newStr2}\") -> {fgClr}{match}{_reset}");
-            }
-        }
-        static void ShowHeader(RegexPatterns eNum)
-        {
-            var name = $"------======[ {_successStr}{eNum.Name()}{_reset} ]======------";
-            Console.WriteLine(name);
-            Console.WriteLine($"Match Pattern   : {eNum.GetInfo(RegexPatternType.Match, false)}");
-            Console.WriteLine($"Sanitize Pattern: {eNum.GetInfo(RegexPatternType.Sanitize, false)}");
-            Console.WriteLine($"Strategy        : {eNum.GetInfo(RegexPatternType.SanitizeStrategy, false)}");
-            Console.WriteLine($"Custom Method   : {eNum.GetInfo(RegexPatternType.CustomMethodName, false)}");
-            Console.WriteLine($"Example(s)      : {eNum.GetInfo(RegexPatternType.Examples, false)}");
-            Console.WriteLine(new string('-', name.Length - _len));
+            ClearScreen();
+            _cBox.Show(title, _titleColor);
         }
         static ConsoleKey Prompt(string msg, ConsoleKey[] validKeys)
         {
@@ -392,47 +446,6 @@ namespace Demo
             ClearScreen();
             return key;
         }
-        static void DemoTitle(string title)
-        {
-            ClearScreen();
-            _cBox.Show(title, _titleColor);
-        }
-        static void ThreadTest(TimeSpan simulatedWorkDuration, TimeSpan lockTimeout, bool isThread = true)
-        {
-            var threadId = Thread.CurrentThread.ManagedThreadId;
-            var requestTime = DateTime.Now;
-            var testName = $"{(isThread ? "Thread" : "Task")}-Test";
-
-            //$"\n***************************\n" +
-            _cBox.Show($"{threadId}: Start {testName}({simulatedWorkDuration})\n" +
-                      $"{threadId}: Lock requested at {requestTime:HH:mm:ss.fffffff}");
-
-            DateTime lockAcquiredAt;
-            bool lockAcquired;
-
-            using (var lockHandle = TLock.Acquire(_inThread, new TLockOptions(lockTimeout)))
-            {
-                lockAcquiredAt = DateTime.Now;
-                lockAcquired = lockHandle.Acquired;
-
-                if (lockAcquired)
-                {
-                    _cBox.Show($"{threadId}: Lock acquired at {lockAcquiredAt:HH:mm:ss.fffffff}", Color.White);
-                    Thread.Sleep(simulatedWorkDuration);
-                }
-                else
-                {
-                    _cBox.Show($"{threadId}: Failed to acquire lock (timed out) at {lockAcquiredAt:HH:mm:ss.fffffff}", Color.FromArgb(255, 128, 128));
-                }
-            }
-
-            var waited = lockAcquiredAt - requestTime;
-
-            _cBox.Show($"{threadId}: Waited for: {waited.TotalMilliseconds:N0} ms (Expected max: {lockTimeout.TotalMilliseconds:N0} ms)\n" +
-                      $"{threadId}: Ended at: {DateTime.Now:HH:mm:ss.fffffff}\n" +
-                      $"{threadId}: Exiting {testName}({simulatedWorkDuration})", Color.MediumAquamarine);
-        }
-
         static void ClearScreen() => ConsoleHelper.ResetConsoleBuffer();
     }
 }

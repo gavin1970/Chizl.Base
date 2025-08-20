@@ -83,6 +83,96 @@ namespace Chizl.Extensions
             //validate min and max and round if necessary.
             return (T)Convert.ChangeType(Math.Round(conv, decPoint), typeof(T));
         }
+        /// <summary>
+        /// Convert IntPtr to int.  This will support 16, 32, and 64 bit systems based on local OS.<br/>
+        /// ___________________
+        /// <code>
+        /// IntPtr myIntPtr = new IntPtr(10000);<br/>
+        /// int myInt = myIntPtr.ToInt();<br/>
+        /// </code>
+        /// </summary>
+        public static int ToInt(this IntPtr ptr) => unchecked(((uint)ptr).ToInt());
+        /// <summary>
+        /// Convert IntPtr to uint.  This will support 16, 32, and 64 bit systems based on local OS.<br/>
+        /// ___________________
+        /// <code>
+        /// IntPtr myIntPtr = new IntPtr(10000);<br/>
+        /// uint myUInt = myIntPtr.ToUInt();<br/>
+        /// </code>
+        /// </summary>
+        public static uint ToUInt(this IntPtr ptr) => unchecked((uint)ptr);
+        /// <summary>
+        /// Convert uint to IntPtr.  This will support 16, 32, and 64 bit systems based on local OS.<br/>
+        /// ___________________
+        /// <code>
+        /// uint myUint = 0x00D;<br/>
+        /// IntPtr myIntPtr = myUint.ToIntPtr();<br/>
+        /// </code>
+        /// </summary>
+        public static IntPtr ToIntPtr(this uint ui) => unchecked(new IntPtr(ui));
+        /// <summary>
+        /// Convert int to IntPtr.  This will support 16, 32, and 64 bit systems based on local OS.<br/>
+        /// ___________________
+        /// <code>
+        /// int myInt = 0x00D;<br/>
+        /// IntPtr myIntPtr = myInt.ToIntPtr();<br/>
+        /// </code>
+        /// </summary>
+        public static IntPtr ToIntPtr(this int ui) => unchecked(new IntPtr(ui.ToUInt()));
+        /// <summary>
+        /// Convert UInt16 to Int16<br/>
+        /// ___________________
+        /// <code>
+        /// UInt16 myUint = 0x00D;<br/>
+        /// Int16 myInt = myUint.ToInt();<br/>
+        /// </code>
+        /// </summary>
+        public static Int16 ToInt(this UInt16 i) => Convert.ToInt16(i);
+        /// <summary>
+        /// Convert UInt32 to Int32<br/>
+        /// ___________________
+        /// <code>
+        /// UInt32 myUint = 0x00D;<br/>
+        /// Int32 myInt = myUint.ToInt();<br/>
+        /// </code>
+        /// </summary>
+        public static Int32 ToInt(this UInt32 i) => unchecked(Convert.ToInt32(i));
+        /// <summary>
+        /// Convert UInt64 to Int64<br/>
+        /// ___________________
+        /// <code>
+        /// UInt64 myUint = 0x00D;<br/>
+        /// Int64 myInt = myUint.ToInt();<br/>
+        /// </code>
+        /// </summary>
+        public static Int64 ToInt(this UInt64 i) => Convert.ToInt64(i);
+        /// <summary>
+        /// Convert Int16 to UInt16<br/>
+        /// ___________________
+        /// <code>
+        /// Int16 myInt = 3000;<br/>
+        /// UInt16 myUint= myUint.ToUInt();<br/>
+        /// </code>
+        /// </summary>
+        public static UInt16 ToUInt(this Int16 i) => Convert.ToUInt16(i);
+        /// <summary>
+        /// Convert Int32 to UInt32<br/>
+        /// ___________________
+        /// <code>
+        /// Int32 myInt = 3000;<br/>
+        /// UInt32 myUint= myUint.ToUInt();<br/>
+        /// </code>
+        /// </summary>
+        public static UInt32 ToUInt(this Int32 i) => Convert.ToUInt32(i);
+        /// <summary>
+        /// Convert Int64 to UInt64<br/>
+        /// ___________________
+        /// <code>
+        /// Int64 myInt = 3000;<br/>
+        /// UInt64 myUint= myUint.ToUInt();<br/>
+        /// </code>
+        /// </summary>
+        public static UInt64 ToUInt(this Int64 i) => Convert.ToUInt64(i);
 
         private static bool IsSupportedNumeric<T>() => _validBoundaryTypes.Contains(typeof(T));
     }

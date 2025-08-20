@@ -23,6 +23,26 @@ namespace Chizl.Extensions
         /// </code>
         /// </summary>
         /// <returns>int value of enum property</returns>
-        public static int Value<T>(this T @this) where T : Enum => (int)(object)@this;
+        public static int Value<T>(this T @this) where T : Enum => @this.ToInt();
+        /// <summary>
+        /// Used for all Enum values and converts them to Int.<br/>
+        /// <code>
+        /// Example:<br/>
+        ///     var e = MyEnum.Property<br/>
+        ///     Console.WriteLine($"Enum property value: {e.ToInt()}");
+        /// </code>
+        /// </summary>
+        /// <returns>string name of enum property as an Int</returns>
+        public static int ToInt<T>(this T @this) where T : Enum => unchecked((int)(object)@this);
+        /// <summary>
+        /// Used for all Enum values and converts them to UInt.<br/>
+        /// <code>
+        /// Example:<br/>
+        ///     var e = MyEnum.Property<br/>
+        ///     Console.WriteLine($"Enum property value: {e.ToUInt()}");
+        /// </code>
+        /// </summary>
+        /// <returns>string name of enum property as a UInt.</returns>
+        public static uint ToUInt<T>(this T @this) where T : Enum => unchecked((uint)(object)@this);
     }
 }
