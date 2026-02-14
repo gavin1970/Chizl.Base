@@ -13,20 +13,21 @@
 				<Description>Used as a base library with generic extentions and methods to be used across other libraries an/or applications.</Description>
 				<PackageId>Chizl</PackageId>
 				<Company>Chizl.com</Company>
-				<Copyright>© 2025 chizl.com</Copyright>
+				<Copyright>© 2025-2026 chizl.com</Copyright>
 				<PackageTags>base-library,netstandard2.0,netstandard2.1,net8.0;dependency-free</PackageTags>
-				<FileVersion>5.08.20.0020</FileVersion>
-				<Version>5.08.20.0</Version>
-				<AssemblyVersion>5.08.0.0</AssemblyVersion>
+				<AssemblyVersion>6.0.0.0</AssemblyVersion>
+				<Version>6.2.14.1</Version>
+				<FileVersion>6.2.14.0751</FileVersion>
+				<InformationalVersion>6.2.14.0751</InformationalVersion>
 		</PropertyGroup>
 
 		<ItemGroup>
-		  <Compile Remove="Demo\**" />
-		  <Compile Remove="Tests\**" />
-		  <EmbeddedResource Remove="Demo\**" />
-		  <EmbeddedResource Remove="Tests\**" />
-		  <None Remove="Demo\**" />
-		  <None Remove="Tests\**" />
+				<Compile Remove="Demo\**" />
+				<Compile Remove="Tests\**" />
+				<EmbeddedResource Remove="Demo\**" />
+				<EmbeddedResource Remove="Tests\**" />
+				<None Remove="Demo\**" />
+				<None Remove="Tests\**" />
 		</ItemGroup>
 
 </Project>
